@@ -90,16 +90,6 @@ export default function PageAccueil() {
       data={depenses} keyExtractor={(item)=> item.id!.toString()}
       renderItem={({item})=>(
         <HistoryCard  item={item} onDelete={confirmerSuppression} />
-        // <View style={styles.card}>
-        //   <Text style={styles.title}>{item.description}</Text>
-        //   <Text style={styles.price}>{item.montant} Ar</Text>
-        //   <TouchableOpacity onPress={()=>confirmerSuppression(item.id!)}>
-        //     <Image
-        //       source={require("@/assets/images/tabIcons/trash.png")}
-        //       style={{width: 24, height:24}}
-        //     />
-        //   </TouchableOpacity>
-        // </View>
       )}
       ListEmptyComponent={()=> (
         <View style={styles.emptyComponent}>
