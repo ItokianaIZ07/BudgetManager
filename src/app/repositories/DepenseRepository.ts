@@ -14,4 +14,16 @@ export const DepenseRepository = {
     ]);
     return resultat.lastInsertRowId;
   },
+
+  recupererToutes: async () : Promise<Depense[]> =>{
+    const requete = "SELECT * FROM depenses ORDER BY date DESC";
+    const resultat = await db.getAllAsync<Depense>(requete);
+
+    return resultat;
+  },
+
+  supprimerDepense: async (id: number) : Promise<void> => {
+    const requete = "DELETE FROM depenses WHERE id = ?";
+    await db.runAsync(requete, [id]);
+  },
 };

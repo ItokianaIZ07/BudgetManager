@@ -1,98 +1,173 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { StyleSheet, Text, View, ActivityIndicator, Button, FlatList, TouchableOpacity, Image, Alert } from 'react-native';
+import { initDatabase, db } from '@/database/sqlite'; 
+import { DepenseRepository } from './repositories/DepenseRepository';
+import { Depense } from '@/models/Depense';
+import { router, useFocusEffect } from 'expo-router';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+export default function PageAccueil() {
+  const [estPret, setEstPret] = useState<boolean>(false);
+  const [depenses, setDepenses] = useState<Depense[]>([]);
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
+  const total = useMemo(()=>{
+    return depenses.reduce((somme, item)=> somme + item.montant, 0);
+  }, [depenses]);
+
+  const rechargeDepense = (id: number) => {
+    setDepenses((depenses)=> depenses.filter((item)=> item.id !== id));
   }
-  if (Device.isDevice) {
+  
+  async function chargerDepenses() {
+    const donnees = await DepenseRepository.recupererToutes();
+    setDepenses(donnees);
+  }
+
+  async function supprimerDepense(id: number){
+    await DepenseRepository.supprimerDepense(id);
+    rechargeDepense(id);
+  }
+  
+  const confirmerSuppression = (id: number) => {
+    Alert.alert("Confirmer la suppression", "Es-tu sûr de vouloir supprimer cette dépense ?", 
+      [
+        {text: "Annuler", style: "cancel"},
+        {
+          text: "Supprimer",
+          style: "destructive",
+          onPress: ()=> supprimerDepense(id)
+        }
+      ]
+    )
+  }
+
+  useEffect(() => {
+    const preparerApplication = async () => {
+      try {
+        // await initDatabase();
+        // await db.runAsync("DELETE FROM depenses");
+        // const depense : Depense = {
+        //   montant: 15000,
+        //   description: "Achat repas midi",
+        //   date: "2026-07-21",
+        //   categorie_id: 1,
+        //   mode_paiement: "Epsèce"
+        // };
+
+
+        // const generatedId = await DepenseRepository.ajouter(depense);
+        // console.log(generatedId);
+      } catch (erreur) {
+        console.error('Erreur au chargement :', erreur);
+      } finally {
+        setEstPret(true);
+      }
+    };
+    preparerApplication();
+  }, []);
+
+  useFocusEffect(useCallback(()=>{
+    chargerDepenses();
+  }, []));
+
+  if (!estPret) {
     return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
+      <View style={styles.centre}>
+        <ActivityIndicator size="large" color="#0000ff" />
+        <Text>Initialisation de la base de données...</Text>
+      </View>
     );
   }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
-
-export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
-
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
+    <FlatList 
+      ListHeaderComponent={()=>(
+        <View style={styles.header}>
+          <Text style={styles.title}>Total des depenses de ce mois</Text>
+          <Text style={styles.price}>{total} Ar</Text>
+        </View>
+      )}
+      data={depenses} keyExtractor={(item)=> item.id!.toString()}
+      renderItem={({item})=>(
+        <View style={styles.card}>
+          <Text style={styles.title}>{item.description}</Text>
+          <Text style={styles.price}>{item.montant} Ar</Text>
+          <TouchableOpacity onPress={()=>confirmerSuppression(item.id!)}>
+            <Image
+              source={require("@/assets/images/tabIcons/trash.png")}
+              style={{width: 24, height:24}}
+            />
+          </TouchableOpacity>
+        </View>
+      )}
+      ListEmptyComponent={()=> (
+        <View style={styles.emptyComponent}>
+          <Text style={styles.label}>Aucune dépense enregistrée</Text>
+          <Button 
+            title='Ajouter une dépense'
+            onPress={()=>router.push('/depense')} 
           />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+        </View>
+      )}
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+  header: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 16,
+    borderRadius: 8
   },
   title: {
-    textAlign: 'center',
+      fontSize: 16,
+      fontWeight: "700",
+      color: "#1A202C",
+      marginBottom: 5
   },
-  code: {
-    textTransform: 'uppercase',
+  subtitle: {
+      fontSize: 14,
+      color: "#718096",
+      marginTop: 4,
   },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+  price: {
+    fontSize: 24,
+    color: "#2f62a0",
+    fontWeight: "bold",
+    marginLeft: "auto"
+  },
+  centre: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  emptyComponent: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F7FAFC",
+  },
+  card: {
+      backgroundColor: "#FFFFFF",
+      borderRadius: 16,
+      padding: 16,
+      marginBottom: 16,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05,
+      shadowRadius: 8,
+      elevation: 2,
+      display: "flex",
+      flexDirection: "row"
+  },
+  label: {
+        fontSize: 12,
+        fontWeight: "600",
+        color: "#A0AEC0",
+        textTransform: "uppercase",
+        letterSpacing: 0.8,
+        marginBottom: 8,
   },
 });
