@@ -4,6 +4,7 @@ import { initDatabase, db } from '@/database/sqlite';
 import { DepenseRepository } from './repositories/DepenseRepository';
 import { Depense } from '@/models/Depense';
 import { router, useFocusEffect } from 'expo-router';
+import HistoryCard from '@/components/history/HistoryCard';
 
 export default function PageAccueil() {
   const [estPret, setEstPret] = useState<boolean>(false);
@@ -88,16 +89,17 @@ export default function PageAccueil() {
       )}
       data={depenses} keyExtractor={(item)=> item.id!.toString()}
       renderItem={({item})=>(
-        <View style={styles.card}>
-          <Text style={styles.title}>{item.description}</Text>
-          <Text style={styles.price}>{item.montant} Ar</Text>
-          <TouchableOpacity onPress={()=>confirmerSuppression(item.id!)}>
-            <Image
-              source={require("@/assets/images/tabIcons/trash.png")}
-              style={{width: 24, height:24}}
-            />
-          </TouchableOpacity>
-        </View>
+        <HistoryCard  item={item} onDelete={confirmerSuppression} />
+        // <View style={styles.card}>
+        //   <Text style={styles.title}>{item.description}</Text>
+        //   <Text style={styles.price}>{item.montant} Ar</Text>
+        //   <TouchableOpacity onPress={()=>confirmerSuppression(item.id!)}>
+        //     <Image
+        //       source={require("@/assets/images/tabIcons/trash.png")}
+        //       style={{width: 24, height:24}}
+        //     />
+        //   </TouchableOpacity>
+        // </View>
       )}
       ListEmptyComponent={()=> (
         <View style={styles.emptyComponent}>
