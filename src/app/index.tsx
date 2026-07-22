@@ -1,45 +1,57 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { StyleSheet, Text, View, ActivityIndicator, Button, FlatList, TouchableOpacity, Image, Alert } from 'react-native';
-import { initDatabase, db } from '@/database/sqlite'; 
-import { DepenseRepository } from './repositories/DepenseRepository';
-import { Depense } from '@/models/Depense';
-import { router, useFocusEffect } from 'expo-router';
-import HistoryCard from '@/components/history/HistoryCard';
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  ActivityIndicator,
+  Button,
+  FlatList,
+  Image,
+  Alert,
+  KeyboardAvoidingView,
+  Platform
+} from "react-native";
+import { DepenseRepository } from "./repositories/DepenseRepository";
+import { Depense } from "@/models/Depense";
+import { router, useFocusEffect } from "expo-router";
+import HistoryCard from "@/components/history/HistoryCard";
 
 export default function PageAccueil() {
   const [estPret, setEstPret] = useState<boolean>(false);
   const [depenses, setDepenses] = useState<Depense[]>([]);
 
-  const total = useMemo(()=>{
-    return depenses.reduce((somme, item)=> somme + item.montant, 0);
+  const total = useMemo(() => {
+    return depenses.reduce((somme, item) => somme + item.montant, 0);
   }, [depenses]);
 
   const rechargeDepense = (id: number) => {
-    setDepenses((depenses)=> depenses.filter((item)=> item.id !== id));
-  }
-  
+    setDepenses((depenses) => depenses.filter((item) => item.id !== id));
+  };
+
   async function chargerDepenses() {
     const donnees = await DepenseRepository.recupererToutes();
     setDepenses(donnees);
   }
 
-  async function supprimerDepense(id: number){
+  async function supprimerDepense(id: number) {
     await DepenseRepository.supprimerDepense(id);
     rechargeDepense(id);
   }
-  
+
   const confirmerSuppression = (id: number) => {
-    Alert.alert("Confirmer la suppression", "Es-tu sûr de vouloir supprimer cette dépense ?", 
+    Alert.alert(
+      "Confirmer la suppression",
+      "Es-tu sûr de vouloir supprimer cette dépense ?",
       [
-        {text: "Annuler", style: "cancel"},
+        { text: "Annuler", style: "cancel" },
         {
           text: "Supprimer",
           style: "destructive",
-          onPress: ()=> supprimerDepense(id)
-        }
-      ]
-    )
-  }
+          onPress: () => supprimerDepense(id),
+        },
+      ],
+    );
+  };
 
   useEffect(() => {
     const preparerApplication = async () => {
@@ -53,12 +65,10 @@ export default function PageAccueil() {
         //   categorie_id: 1,
         //   mode_paiement: "Epsèce"
         // };
-
-
         // const generatedId = await DepenseRepository.ajouter(depense);
         // console.log(generatedId);
       } catch (erreur) {
-        console.error('Erreur au chargement :', erreur);
+        console.error("Erreur au chargement :", erreur);
       } finally {
         setEstPret(true);
       }
@@ -66,9 +76,11 @@ export default function PageAccueil() {
     preparerApplication();
   }, []);
 
-  useFocusEffect(useCallback(()=>{
-    chargerDepenses();
-  }, []));
+  useFocusEffect(
+    useCallback(() => {
+      chargerDepenses();
+    }, []),
+  );
 
   if (!estPret) {
     return (
@@ -80,60 +92,98 @@ export default function PageAccueil() {
   }
 
   return (
-    <FlatList 
-      ListHeaderComponent={()=>(
-        <View style={styles.header}>
-          <Text style={styles.title}>Total des depenses de ce mois</Text>
-          <Text style={styles.price}>{total} Ar</Text>
-        </View>
-      )}
-      data={depenses} keyExtractor={(item)=> item.id!.toString()}
-      renderItem={({item})=>(
-        <HistoryCard  item={item} onDelete={confirmerSuppression} />
-      )}
-      ListEmptyComponent={()=> (
-        <View style={styles.emptyComponent}>
-          <Text style={styles.label}>Aucune dépense enregistrée</Text>
-          <Button 
-            title='Ajouter une dépense'
-            onPress={()=>router.push('/depense')} 
-          />
-        </View>
-      )}
-    />
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+      <View style={styles.headerApp}>
+        <Text style={styles.headerTitle}>Suivie de Budget</Text>
+        <Image
+          source={require("@/assets/images/tabIcons/currency-manat.png")}
+          style= {styles.logo}
+        />
+      </View>
+      <FlatList
+        ListHeaderComponent={() => (
+          <View style={styles.header}>
+            <Text style={styles.title}>Total des depenses de ce mois</Text>
+            <Text style={styles.price}>{total} Ar</Text>
+          </View>
+        )}
+        data={depenses}
+        keyExtractor={(item) => item.id!.toString()}
+        renderItem={({ item }) => (
+          <HistoryCard item={item} onDelete={confirmerSuppression} />
+        )}
+        ListEmptyComponent={() => (
+          <View style={styles.emptyComponent}>
+            <Text style={styles.label}>Aucune dépense enregistrée</Text>
+            <Button
+              title="Ajouter une dépense"
+              onPress={() => router.push("/depense")}
+            />
+          </View>
+        )}
+      />
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#F7FAFC",
+  },
+  headerApp: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 16,
+    borderRadius: 8,
+    backgroundColor: "#e1e1e1",
+    marginTop: 10,
+    alignItems: "center"
+  },
+  logo: {
+    width: 32,
+    height: 32,
+    backgroundColor: "#16689e84",
+    borderRadius: 50
+  },
+  headerTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#16689e"
+  },
   header: {
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
     padding: 16,
-    borderRadius: 8
+    borderRadius: 8,
   },
   title: {
-      fontSize: 16,
-      fontWeight: "700",
-      color: "#1A202C",
-      marginBottom: 5
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#1A202C",
+    marginBottom: 5,
   },
   subtitle: {
-      fontSize: 14,
-      color: "#718096",
-      marginTop: 4,
+    fontSize: 14,
+    color: "#718096",
+    marginTop: 4,
   },
   price: {
     fontSize: 24,
     color: "#2f62a0",
     fontWeight: "bold",
-    marginLeft: "auto"
+    marginLeft: "auto",
   },
   centre: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
   },
   emptyComponent: {
     display: "flex",
@@ -142,24 +192,24 @@ const styles = StyleSheet.create({
     backgroundColor: "#F7FAFC",
   },
   card: {
-      backgroundColor: "#FFFFFF",
-      borderRadius: 16,
-      padding: 16,
-      marginBottom: 16,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.05,
-      shadowRadius: 8,
-      elevation: 2,
-      display: "flex",
-      flexDirection: "row"
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+    display: "flex",
+    flexDirection: "row",
   },
   label: {
-        fontSize: 12,
-        fontWeight: "600",
-        color: "#A0AEC0",
-        textTransform: "uppercase",
-        letterSpacing: 0.8,
-        marginBottom: 8,
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#A0AEC0",
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+    marginBottom: 8,
   },
 });
