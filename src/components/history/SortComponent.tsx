@@ -9,7 +9,6 @@ interface SortProps {
 
 export default function SortComponent({onSort, onInput}: SortProps){
     const [filtre, setFiltre] = useState<number>(-1);
-    const [keyWord, setKeyWord] = useState<string>("");
     const options = [
         {id: -1, label: "Toutes"},
         { id: 1, label: "Alimentation" },

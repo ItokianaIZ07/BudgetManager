@@ -10,7 +10,7 @@ import {
   Platform
 } from "react-native";
 import { Depense } from "@/models/Depense";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useFocusEffect } from "expo-router";
 import HistoryCard from "@/components/history/HistoryCard";
 import { router } from "expo-router";
