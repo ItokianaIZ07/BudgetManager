@@ -26,4 +26,18 @@ export const DepenseRepository = {
     const requete = "DELETE FROM depenses WHERE id = ?";
     await db.runAsync(requete, [id]);
   },
+
+  recupererParCategorie: async(id: number) : Promise<Depense[]> =>{
+    const requete = "SELECT * FROM depenses WHERE categorie_id = ? ORDER BY date DESC";
+    const resultat = await db.getAllAsync<Depense>(requete, [id])
+
+    return resultat;
+  },
+
+  rechercherParMotCle : async(keyword: string): Promise<Depense[]> =>{
+    const requete = "SELECT * FROM depenses WHERE description LIKE \"%?%\"";
+    const resultat = await db.getAllAsync<Depense>(requete, [keyword]);
+
+    return resultat;
+  }
 };

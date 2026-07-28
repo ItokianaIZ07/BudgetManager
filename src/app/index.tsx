@@ -15,10 +15,50 @@ import { DepenseRepository } from "./repositories/DepenseRepository";
 import { Depense } from "@/models/Depense";
 import { router, useFocusEffect } from "expo-router";
 import HistoryCard from "@/components/history/HistoryCard";
+import {Picker} from "@react-native-picker/picker"
 
 export default function PageAccueil() {
   const [estPret, setEstPret] = useState<boolean>(false);
   const [depenses, setDepenses] = useState<Depense[]>([]);
+  const [depenseFiltre, setDepenseFiltre] = useState<Depense[]>(depenses);
+
+  const dateActuelle = new Date();
+
+  const moisCourant = String(dateActuelle.getMonth()+1).padStart(2, '0');
+  const anneeCourante = String(dateActuelle.getFullYear());
+
+  const [mois, setMois] = useState<string>(moisCourant);
+  const [annee, setAnnee] = useState<string>(anneeCourante);
+
+  const listMois = [
+    {valeur:"01",label:"Janvier"},
+    {valeur:"02",label: "Févirer"},
+    {valeur:"03",label: "Mars"},
+    {valeur:"04",label: "Avril"},
+    {valeur:"05",label: "Mai"},
+    {valeur:"06",label: "Juin"},
+    {valeur:"07",label: "Juillet"},
+    {valeur:"08",label: "Août"},
+    {valeur:"09",label: "Septembre"},
+    {valeur:"10",label: "Octobre"},
+    {valeur:"11",label: "Novembre"},
+    {valeur:"12",label: "Décembre"}
+  ];
+
+  const listAnnee = [];
+  for(let a = parseInt(anneeCourante) - 5; a <= parseInt(anneeCourante); a++){
+    listAnnee.push({
+      key:a + 5 - parseInt(anneeCourante), valeur:a.toString()
+    });
+  }
+
+  function getMois(indice: string): string{
+    return listMois.find(v=>v.valeur == indice)!.valeur;
+  }
+
+  const filtrerDepense = () : void =>{
+    setDepenseFiltre((depenses)=> depenses.filter(d=> d.date.startsWith(annee+"-"+mois)));
+  }
 
   const total = useMemo(() => {
     return depenses.reduce((somme, item) => somme + item.montant, 0);
@@ -76,9 +116,14 @@ export default function PageAccueil() {
     preparerApplication();
   }, []);
 
+  useEffect(()=>{
+    filtrerDepense();
+  }, [mois, annee]);
+
   useFocusEffect(
     useCallback(() => {
       chargerDepenses();
+      filtrerDepense();
     }, []),
   );
 
@@ -103,10 +148,45 @@ export default function PageAccueil() {
           style= {styles.logo}
         />
       </View>
+      {/* <View>
+        <Text>Filtre</Text>
+        <View>
+          <View>
+            <Text>Mois</Text>
+            <Picker
+              selectedValue={getMois(moisCourant)}
+              onValueChange={(itemValue)=>setMois(itemValue)}
+            >
+              {listMois.map((m)=>(
+                <Picker.Item
+                  key={m.valeur}
+                  label={m.label}
+                  value={m.valeur}
+                />
+              ))}
+            </Picker>
+          </View>
+          <View>
+            <Text>Année</Text>
+            <Picker
+              selectedValue={anneeCourante}
+              onValueChange={(itemValue)=>setAnnee(itemValue)}
+            >
+              {listAnnee.map((a)=>(
+                <Picker.Item
+                  key={a.key}
+                  label={a.valeur}
+                  value={a.valeur}
+                />
+              ))}
+            </Picker>
+          </View>
+        </View>
+      </View> */}
       <FlatList
         ListHeaderComponent={() => (
           <View style={styles.header}>
-            <Text style={styles.title}>Total des depenses de ce mois</Text>
+            <Text style={styles.title}>Total des depenses</Text>
             <Text style={styles.price}>{total} Ar</Text>
           </View>
         )}

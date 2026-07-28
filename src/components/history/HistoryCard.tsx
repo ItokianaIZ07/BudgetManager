@@ -16,11 +16,14 @@ interface HistoryCardProps {
 export default function HistoryCard({ item, onDelete }: HistoryCardProps) {
   return (
     <View style={styles.card}>
-      <Text style={styles.title}>{item.description}</Text>
+      <View>
+        <Text style={styles.title}>{item.description}</Text>
+        <Text style={styles.date}>{item.date}</Text>
+      </View>
       <Text style={styles.price}>{item.montant} Ar</Text>
       <TouchableOpacity onPress={() => onDelete(item.id!)}>
         <Image
-          source={require("@/assets/images/tabIcons/trash.png")}
+          source={require("@/assets/images/trash.png")}
           style={{ width: 24, height: 24 }}
         />
       </TouchableOpacity>
@@ -42,7 +45,7 @@ const styles = StyleSheet.create({
   },
   price: {
     fontSize: 24,
-    color: "#2f62a0",
+    color: "#16689e",
     fontWeight: "bold",
     marginLeft: "auto",
   },
@@ -59,4 +62,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
   },
+  date:{
+    fontSize: 8,
+  }
 });

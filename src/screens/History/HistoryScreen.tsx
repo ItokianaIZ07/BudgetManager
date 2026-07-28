@@ -1,5 +1,142 @@
+import { DepenseRepository } from "@/app/repositories/DepenseRepository";
+import {
+  FlatList,
+  Alert,
+  Text,
+  Button,
+  View,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform
+} from "react-native";
+import { Depense } from "@/models/Depense";
+import { useEffect, useState } from "react";
+import { useFocusEffect } from "expo-router";
+import HistoryCard from "@/components/history/HistoryCard";
+import { router } from "expo-router";
+import HistoryHeader from "@/components/history/HistoryHeader";
+import SortComponent from "@/components/history/SortComponent";
+
+export default function HistoryScreen() {
+  const [depenses, setDepenses] = useState<Depense[]>([]);
+
+  const rechargeDepense = (id: number) => {
+    setDepenses((depenses) => depenses.filter((item) => item.id !== id));
+  };
+
+  async function chargerDepenses() {
+    const donnees = await DepenseRepository.recupererToutes();
+    setDepenses(donnees);
+  }
+
+  async function supprimerDepense(id: number) {
+    await DepenseRepository.supprimerDepense(id);
+    rechargeDepense(id);
+  }
+
+  const confirmerSuppression = (id: number) => {
+    Alert.alert(
+      "Confirmer la suppression",
+      "Es-tu sûr de vouloir supprimer cette dépense ?",
+      [
+        { text: "Annuler", style: "cancel" },
+        {
+          text: "Supprimer",
+          style: "destructive",
+          onPress: () => supprimerDepense(id),
+        },
+      ],
+    );
+  };
+
+  const sortById = async (id: number) =>{
+    if(id <= 0){
+        await chargerDepenses();
+        return;
+    }
+    const donnees = await DepenseRepository.recupererParCategorie(id);
+    setDepenses(donnees);
+  }
+
+  const searchByKeyWord = async (keyword: string)=>{
+    if(keyword.trim() === ""){
+        await chargerDepenses();
+        return;
+    }
+    // const donnees = await DepenseRepository.rechercherParMotCle(keyword);
+    // setDepenses(donnees);
+    const donnees = depenses.filter((d)=>d.description.toLowerCase().startsWith(keyword.toLowerCase()))
+    setDepenses(donnees);
+  }
+
+  useFocusEffect(() => {
+    sortById(-1);
+  });
 
 
-export default function HistoryScreen(){
-    
+  return (
+    <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+    <HistoryHeader depenses={depenses} />
+    <SortComponent onSort={sortById} onInput={searchByKeyWord}/>
+    <FlatList
+        ListHeaderComponent={()=>(
+            <View style={styles.headerApp}>
+                <Text style={styles.headerTitle}>Historique récent({depenses.length})</Text>
+            </View>
+        )}
+      data={depenses}
+      keyExtractor={(item) => item.id!.toString()}
+      renderItem={({ item }) => (
+        <HistoryCard item={item} onDelete={confirmerSuppression} />
+      )}
+      ListEmptyComponent={() => (
+          <View style={styles.emptyComponent}>
+          <Text style={styles.label}>Aucune dépense enregistrée pour cette catégorie</Text>
+          <Button
+            title="Ajouter une dépense"
+            onPress={() => router.push("/depense")}
+          />
+        </View>
+      )}
+      ></FlatList>
+    </KeyboardAvoidingView>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#F7FAFC",
+  },
+  emptyComponent: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F7FAFC",
+  },
+  label: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#A0AEC0",
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+    marginBottom: 8,
+  },
+  headerApp: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 16,
+    borderRadius: 8,
+    marginTop: 10,
+    alignItems: "center"
+  },
+  headerTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#16689e"
+  },
+});
