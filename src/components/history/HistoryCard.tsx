@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
+import { Util } from "@/app/utils/util";
+import DeleteButton from "./DeleteButton";
 
 interface HistoryCardProps {
   item: Depense;
@@ -18,15 +20,10 @@ export default function HistoryCard({ item, onDelete }: HistoryCardProps) {
     <View style={styles.card}>
       <View>
         <Text style={styles.title}>{item.description}</Text>
-        <Text style={styles.date}>{item.date}</Text>
+        <Text style={styles.date}>{Util.formatDate(item.date)}</Text>
       </View>
-      <Text style={styles.price}>{item.montant} Ar</Text>
-      <TouchableOpacity onPress={() => onDelete(item.id!)}>
-        <Image
-          source={require("@/assets/images/trash.png")}
-          style={{ width: 24, height: 24 }}
-        />
-      </TouchableOpacity>
+      <Text style={styles.price}>{Util.formatNumber(item.montant)} Ar</Text>
+      <DeleteButton item={item} onDelete={onDelete} />
     </View>
   );
 }
@@ -48,6 +45,7 @@ const styles = StyleSheet.create({
     color: "#16689e",
     fontWeight: "bold",
     marginLeft: "auto",
+    marginRight: 8
   },
   card: {
     backgroundColor: "#FFFFFF",
@@ -61,8 +59,10 @@ const styles = StyleSheet.create({
     elevation: 2,
     display: "flex",
     flexDirection: "row",
+    marginHorizontal: 8,
+    alignItems: "center"
   },
   date:{
     fontSize: 8,
-  }
+  },
 });

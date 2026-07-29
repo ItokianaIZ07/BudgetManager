@@ -13,6 +13,7 @@ import {
 import { DepenseRepository } from "@/app/repositories/DepenseRepository";
 import { Float } from "react-native/Libraries/Types/CodegenTypes";
 import { Depense } from "@/models/Depense";
+import Header from "@/components/header";
 
 export default function AddExpenseScreen() {
     const [montant, setMontant] = useState<string>('');
@@ -65,6 +66,7 @@ export default function AddExpenseScreen() {
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             style={styles.container}
         >
+            <Header/>
             <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
                 
                 <View style={styles.header}>
@@ -161,7 +163,6 @@ const styles = StyleSheet.create({
     },
     scrollContainer: {
         padding: 20,
-        paddingTop: 40,
     },
     header: {
         marginBottom: 24,

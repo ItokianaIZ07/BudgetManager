@@ -16,6 +16,8 @@ import { Depense } from "@/models/Depense";
 import { router, useFocusEffect } from "expo-router";
 import HistoryCard from "@/components/history/HistoryCard";
 import {Picker} from "@react-native-picker/picker"
+import Header from "@/components/header";
+import { Util } from "./utils/util";
 
 export default function PageAccueil() {
   const [estPret, setEstPret] = useState<boolean>(false);
@@ -30,30 +32,11 @@ export default function PageAccueil() {
   const [mois, setMois] = useState<string>(moisCourant);
   const [annee, setAnnee] = useState<string>(anneeCourante);
 
-  const listMois = [
-    {valeur:"01",label:"Janvier"},
-    {valeur:"02",label: "Févirer"},
-    {valeur:"03",label: "Mars"},
-    {valeur:"04",label: "Avril"},
-    {valeur:"05",label: "Mai"},
-    {valeur:"06",label: "Juin"},
-    {valeur:"07",label: "Juillet"},
-    {valeur:"08",label: "Août"},
-    {valeur:"09",label: "Septembre"},
-    {valeur:"10",label: "Octobre"},
-    {valeur:"11",label: "Novembre"},
-    {valeur:"12",label: "Décembre"}
-  ];
-
   const listAnnee = [];
   for(let a = parseInt(anneeCourante) - 5; a <= parseInt(anneeCourante); a++){
     listAnnee.push({
       key:a + 5 - parseInt(anneeCourante), valeur:a.toString()
     });
-  }
-
-  function getMois(indice: string): string{
-    return listMois.find(v=>v.valeur == indice)!.valeur;
   }
 
   const filtrerDepense = () : void =>{
@@ -77,21 +60,6 @@ export default function PageAccueil() {
     await DepenseRepository.supprimerDepense(id);
     rechargeDepense(id);
   }
-
-  const confirmerSuppression = (id: number) => {
-    Alert.alert(
-      "Confirmer la suppression",
-      "Es-tu sûr de vouloir supprimer cette dépense ?",
-      [
-        { text: "Annuler", style: "cancel" },
-        {
-          text: "Supprimer",
-          style: "destructive",
-          onPress: () => supprimerDepense(id),
-        },
-      ],
-    );
-  };
 
   useEffect(() => {
     const preparerApplication = async () => {
@@ -141,23 +109,17 @@ export default function PageAccueil() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      <View style={styles.headerApp}>
-        <Text style={styles.headerTitle}>Suivie de Budget</Text>
-        <Image
-          source={require("@/assets/images/tabIcons/currency-manat.png")}
-          style= {styles.logo}
-        />
-      </View>
+    <Header/>
       {/* <View>
         <Text>Filtre</Text>
         <View>
           <View>
             <Text>Mois</Text>
             <Picker
-              selectedValue={getMois(moisCourant)}
+              selectedValue={Util.getMonth(moisCourant)}
               onValueChange={(itemValue)=>setMois(itemValue)}
             >
-              {listMois.map((m)=>(
+              {Util.months.map((m)=>(
                 <Picker.Item
                   key={m.valeur}
                   label={m.label}
@@ -187,13 +149,13 @@ export default function PageAccueil() {
         ListHeaderComponent={() => (
           <View style={styles.header}>
             <Text style={styles.title}>Total des depenses</Text>
-            <Text style={styles.price}>{total} Ar</Text>
+            <Text style={styles.price}>{Util.formatNumber(total)} Ar</Text>
           </View>
         )}
         data={depenses}
         keyExtractor={(item) => item.id!.toString()}
         renderItem={({ item }) => (
-          <HistoryCard item={item} onDelete={confirmerSuppression} />
+          <HistoryCard item={item} onDelete={supprimerDepense} />
         )}
         ListEmptyComponent={() => (
           <View style={styles.emptyComponent}>
@@ -213,27 +175,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F7FAFC",
-  },
-  headerApp: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 16,
-    borderRadius: 8,
-    backgroundColor: "#e1e1e1",
-    marginTop: 10,
-    alignItems: "center"
-  },
-  logo: {
-    width: 32,
-    height: 32,
-    backgroundColor: "#16689e84",
-    borderRadius: 50
-  },
-  headerTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#16689e"
   },
   header: {
     display: "flex",

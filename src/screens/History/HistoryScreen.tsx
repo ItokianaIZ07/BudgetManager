@@ -16,6 +16,7 @@ import HistoryCard from "@/components/history/HistoryCard";
 import { router } from "expo-router";
 import HistoryHeader from "@/components/history/HistoryHeader";
 import SortComponent from "@/components/history/SortComponent";
+import Header from "@/components/header";
 
 export default function HistoryScreen() {
   const [depenses, setDepenses] = useState<Depense[]>([]);
@@ -34,20 +35,6 @@ export default function HistoryScreen() {
     rechargeDepense(id);
   }
 
-  const confirmerSuppression = (id: number) => {
-    Alert.alert(
-      "Confirmer la suppression",
-      "Es-tu sûr de vouloir supprimer cette dépense ?",
-      [
-        { text: "Annuler", style: "cancel" },
-        {
-          text: "Supprimer",
-          style: "destructive",
-          onPress: () => supprimerDepense(id),
-        },
-      ],
-    );
-  };
 
   const sortById = async (id: number) =>{
     if(id <= 0){
@@ -57,7 +44,7 @@ export default function HistoryScreen() {
     const donnees = await DepenseRepository.recupererParCategorie(id);
     setDepenses(donnees);
   }
-
+à
   const searchByKeyWord = async (keyword: string)=>{
     if(keyword.trim() === ""){
         await chargerDepenses();
@@ -79,18 +66,19 @@ export default function HistoryScreen() {
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-    <HistoryHeader depenses={depenses} />
+    <Header/>
+    {/* <HistoryHeader depenses={depenses} /> */}
     <SortComponent onSort={sortById} onInput={searchByKeyWord}/>
     <FlatList
         ListHeaderComponent={()=>(
             <View style={styles.headerApp}>
-                <Text style={styles.headerTitle}>Historique récent({depenses.length})</Text>
+                <Text style={styles.headerTitle}>Historique ({depenses.length})</Text>
             </View>
         )}
       data={depenses}
       keyExtractor={(item) => item.id!.toString()}
       renderItem={({ item }) => (
-        <HistoryCard item={item} onDelete={confirmerSuppression} />
+        <HistoryCard item={item} onDelete={supprimerDepense} />
       )}
       ListEmptyComponent={() => (
           <View style={styles.emptyComponent}>
@@ -131,7 +119,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 16,
     borderRadius: 8,
-    marginTop: 10,
     alignItems: "center"
   },
   headerTitle: {
