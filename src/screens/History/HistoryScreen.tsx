@@ -44,7 +44,7 @@ export default function HistoryScreen() {
     const donnees = await DepenseRepository.recupererParCategorie(id);
     setDepenses(donnees);
   }
-à
+
   const searchByKeyWord = async (keyword: string)=>{
     if(keyword.trim() === ""){
         await chargerDepenses();
