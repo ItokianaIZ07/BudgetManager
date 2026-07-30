@@ -31,7 +31,11 @@ export default function SortComponent({onSort, onInput}: SortProps){
             </View>
             <ScrollView horizontal={true} contentContainerStyle={styles.scrollContainer} showsHorizontalScrollIndicator={true}>
                 {Util.options.map((item)=>(
-                    <View key={item.id} style={item.id === filtre ? styles.focus: styles.option}>
+                    <View key={item.id} style={[
+                            styles.option,
+                            item.id === filtre && styles.focus
+                        ]}
+                    >
                         <TouchableOpacity
                             onPress={()=>{
                                 onSort(item.id),
@@ -66,9 +70,6 @@ const styles = StyleSheet.create({
     },
     focus:{
         backgroundColor: "#3182CE",
-        borderRadius:40,
-        padding: 8,
-        margin: 8,
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.05,
