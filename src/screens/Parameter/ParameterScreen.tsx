@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import Header from "@/components/header";
 import { DepenseRepository } from "@/app/repositories/DepenseRepository";
+import { router } from "expo-router";
 
 export default function ParameterScreen() {
   const anneeActuelle = new Date().getFullYear();
@@ -22,7 +23,10 @@ export default function ParameterScreen() {
         {
           text: "Supprimer",
           style: "destructive",
-          onPress: () => DepenseRepository.supprimerTout(),
+          onPress: () => {
+            DepenseRepository.supprimerTout();
+            router.push('/');
+          }
         },
       ],
     );
