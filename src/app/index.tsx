@@ -148,8 +148,14 @@ export default function PageAccueil() {
       <FlatList
         ListHeaderComponent={() => (
           <View style={styles.header}>
-            <Text style={styles.title}>Total des depenses</Text>
-            <Text style={styles.price}>{Util.formatNumber(total)} Ar</Text>
+            <View style={styles.cardStat}>
+              <Text style={styles.title}>Total montant des depenses</Text>
+              <Text style={styles.valeur}>{Util.formatNumber(total)} Ar</Text>
+            </View>
+            <View style={styles.cardStat}>
+              <Text style={styles.title}>Total des depenses effectués</Text>
+              <Text style={styles.valeur}>{depenses.length}</Text>
+            </View>
           </View>
         )}
         data={depenses}
@@ -180,11 +186,12 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
-    padding: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 8,
     borderRadius: 8,
   },
   title: {
-    fontSize: 16,
+    fontSize: 10,
     fontWeight: "700",
     color: "#1A202C",
     marginBottom: 5,
@@ -194,11 +201,10 @@ const styles = StyleSheet.create({
     color: "#718096",
     marginTop: 4,
   },
-  price: {
-    fontSize: 24,
+  valeur: {
+    fontSize: 20,
     color: "#2f62a0",
     fontWeight: "bold",
-    marginLeft: "auto",
   },
   centre: {
     flex: 1,
@@ -233,4 +239,18 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
     marginBottom: 8,
   },
+  cardStat: {
+    backgroundColor: "#FFF",
+    padding: 8,
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+    height: 72,
+    display: "flex",
+    flexDirection: "column",
+    gap: 8
+  }
 });
