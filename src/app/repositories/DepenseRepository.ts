@@ -35,10 +35,15 @@ export const DepenseRepository = {
   },
 
   rechercherParMotCle : async(keyword: string): Promise<Depense[]> =>{
-    const requete = "SELECT * FROM depenses WHERE description LIKE \"%?%\"";
-    const resultat = await db.getAllAsync<Depense>(requete, [keyword]);
-
-    return resultat;
+    const requete = "SELECT * FROM depenses WHERE description LIKE ?";
+    const stmt = await db.prepareAsync(requete);
+    const resultat = await stmt.executeAsync<Depense>([`${keyword}%`])
+    try{
+      return await resultat.getAllAsync();
+    }
+    finally{
+      stmt.finalizeAsync();
+    }
   },
 
   supprimerTout : async(): Promise<void> =>{

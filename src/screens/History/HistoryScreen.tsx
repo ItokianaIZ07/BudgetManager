@@ -50,9 +50,8 @@ export default function HistoryScreen() {
         await chargerDepenses();
         return;
     }
-    // const donnees = await DepenseRepository.rechercherParMotCle(keyword);
-    // setDepenses(donnees);
-    const donnees = depenses.filter((d)=>d.description.toLowerCase().startsWith(keyword.toLowerCase()))
+    const donnees = await DepenseRepository.rechercherParMotCle(keyword);
+    // const donnees = depenses.filter((d)=>d.description.toLowerCase().startsWith(keyword.toLowerCase()))
     setDepenses(donnees);
   }
 
