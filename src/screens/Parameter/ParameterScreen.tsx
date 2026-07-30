@@ -12,7 +12,7 @@ import Header from "@/components/header";
 import { DepenseRepository } from "@/app/repositories/DepenseRepository";
 
 export default function ParameterScreen() {
-    const anneeActuelle = (new Date()).getFullYear();
+  const anneeActuelle = new Date().getFullYear();
   const clearData = () => {
     Alert.alert(
       "Confirmer la suppression",
@@ -37,10 +37,7 @@ export default function ParameterScreen() {
       <View style={styles.cardContainer}>
         <Text style={styles.label}>Données & Sécurité</Text>
         <View style={styles.card}>
-          <TouchableOpacity 
-                onPress={clearData}
-                style={styles.button}
-            >
+          <TouchableOpacity onPress={clearData} style={styles.button}>
             <View style={styles.action}>
               <Text style={styles.buttonLabel}>
                 Supprimer toutes les dépenses
@@ -54,7 +51,9 @@ export default function ParameterScreen() {
         </View>
       </View>
       <View style={styles.footer}>
-        <Text style={styles.footerLabel}>&copy; {anneeActuelle} - Budget Manager. Compte bien, dépense peu.</Text>
+        <Text style={styles.footerLabel}>
+          &copy; {anneeActuelle} - Budget Manager. Compte bien, dépense peu.
+        </Text>
       </View>
     </KeyboardAvoidingView>
   );
@@ -79,7 +78,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 2,
-    paddingVertical: 8
+    paddingVertical: 8,
   },
   action: {
     display: "flex",
@@ -105,14 +104,14 @@ const styles = StyleSheet.create({
   footer: {
     bottom: 0,
     display: "flex",
-    alignItems :"center",
+    alignItems: "center",
     padding: 8,
     justifyContent: "flex-end",
-    flexDirection: "column"
+    flexDirection: "column",
   },
   footerLabel: {
     fontSize: 8,
     textAlign: "center",
-    fontStyle: "italic"
-  }
+    fontStyle: "italic",
+  },
 });
