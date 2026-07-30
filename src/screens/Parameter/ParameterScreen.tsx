@@ -12,6 +12,7 @@ import Header from "@/components/header";
 import { DepenseRepository } from "@/app/repositories/DepenseRepository";
 
 export default function ParameterScreen() {
+    const anneeActuelle = (new Date()).getFullYear();
   const clearData = () => {
     Alert.alert(
       "Confirmer la suppression",
@@ -51,6 +52,9 @@ export default function ParameterScreen() {
             </View>
           </TouchableOpacity>
         </View>
+      </View>
+      <View style={styles.footer}>
+        <Text style={styles.footerLabel}>&copy; {anneeActuelle} - Budget Manager. Compte bien, dépense peu.</Text>
       </View>
     </KeyboardAvoidingView>
   );
@@ -98,4 +102,17 @@ const styles = StyleSheet.create({
     color: "#384069",
     fontWeight: "bold",
   },
+  footer: {
+    bottom: 0,
+    display: "flex",
+    alignItems :"center",
+    padding: 8,
+    justifyContent: "flex-end",
+    flexDirection: "column"
+  },
+  footerLabel: {
+    fontSize: 8,
+    textAlign: "center",
+    fontStyle: "italic"
+  }
 });
