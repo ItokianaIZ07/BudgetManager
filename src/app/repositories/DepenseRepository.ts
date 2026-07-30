@@ -39,5 +39,10 @@ export const DepenseRepository = {
     const resultat = await db.getAllAsync<Depense>(requete, [keyword]);
 
     return resultat;
+  },
+
+  supprimerTout : async(): Promise<void> =>{
+    const requete = "DELETE FROM depense";
+    await db.runAsync(requete);
   }
 };
