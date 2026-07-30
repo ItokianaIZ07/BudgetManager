@@ -27,7 +27,6 @@ export const Util = {
 
   formatDate: (date: string) => {
     const [y, m, d] = date.split("-");
-    console.log(y, m, d);
     return d + " " + getMonth(m) + " " + y;
   },
 
