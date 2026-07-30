@@ -52,7 +52,7 @@ export default function ParameterScreen() {
       </View>
       <View style={styles.footer}>
         <Text style={styles.footerLabel}>
-          &copy; {anneeActuelle} - Budget Manager. Compte bien, dépense peu.
+          &copy; {anneeActuelle} - Budget Manager by ItokianaIZ07. Compte bien, dépense peu.
         </Text>
       </View>
     </KeyboardAvoidingView>
