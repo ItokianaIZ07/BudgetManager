@@ -11,7 +11,7 @@ export const initDatabase = async (): Promise<void> => {
 
       CREATE TABLE IF NOT EXISTS categorie (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        libelle TEXT NOT NULL
+        libelle TEXT NOT NULL UNIQUE
       );
 
       CREATE TABLE IF NOT EXISTS depenses (
@@ -35,7 +35,7 @@ export const initDatabase = async (): Promise<void> => {
 export const initCategoryData = async (): Promise<void> => {
   try{
     await db.runAsync(`
-      INSERT INTO categorie (id, libelle) VALUES
+      INSERT OR IGNORE INTO categorie (id, libelle) VALUES
       (1, 'Alimentation'),
       (2, 'Transport'),
       (3, 'Loisirs'),

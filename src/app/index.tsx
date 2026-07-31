@@ -66,9 +66,7 @@ export default function PageAccueil() {
     const preparerApplication = async () => {
       try {
         await initDatabase();
-        if(!hasCategoryData()){
-          await initCategoryData();
-        }
+        await initCategoryData();
       } catch (erreur) {
         console.error("Erreur au chargement :", erreur);
       } finally {
