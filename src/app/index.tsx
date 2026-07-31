@@ -18,7 +18,7 @@ import HistoryCard from "@/components/history/HistoryCard";
 import {Picker} from "@react-native-picker/picker"
 import Header from "@/components/header";
 import { Util } from "./utils/util";
-import {initDatabase, initCategoryData, hasCategoryData, db } from "@/database/sqlite";
+import {initDatabase, initializeData, isInitalized} from "@/database/sqlite";
 
 export default function PageAccueil() {
   const [estPret, setEstPret] = useState<boolean>(false);
@@ -66,7 +66,9 @@ export default function PageAccueil() {
     const preparerApplication = async () => {
       try {
         await initDatabase();
-        await initCategoryData();
+        if(isInitalized() == 'false'){
+          await initializeData();
+        }
       } catch (erreur) {
         console.error("Erreur au chargement :", erreur);
       } finally {
