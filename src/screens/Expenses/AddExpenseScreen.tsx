@@ -21,9 +21,18 @@ export default function AddExpenseScreen() {
     const [description, setDescription] = useState<string>("");
     const [categorieId, setCategorieId] = useState<number>(1);
     const [modePaiement, setModePaiement] = useState<string>("Espèce");
+    const regex = /^\d+$/
 
-    function isMontantNull(): boolean {
-        return montant == null;
+    function isValid(): boolean {
+        try{
+            return regex.test(montant);
+        }catch(error){
+            return false;
+        }
+    }
+
+    function isDescriptionNull(){
+        return description.trim() === "";
     }
 
     function resetChamp(): void{
@@ -34,9 +43,15 @@ export default function AddExpenseScreen() {
     }
 
     const handleAjoute = async () => {
-        if (isMontantNull()) {
+        if (!isValid()) {
             console.log(montant);
-            Alert.alert("Veuillez remplir le montant");
+            Alert.alert("Veuillez remplir le montant en nombre positif");
+            return;
+        }
+
+        if(isDescriptionNull()){
+            Alert.alert("Veuillez ajouter une description");
+            return;
         }
 
         const depense: Depense = {
