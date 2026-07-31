@@ -36,7 +36,7 @@ export default function AppTabs() {
         />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="parameter">
+      <NativeTabs.Trigger name="settings">
         <NativeTabs.Trigger.Label>Paramètre</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
           src={require('@/assets/images/tabIcons/settings.png')}

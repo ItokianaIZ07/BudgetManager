@@ -12,7 +12,7 @@ import Header from "@/components/header";
 import { DepenseRepository } from "@/app/repositories/DepenseRepository";
 import { router } from "expo-router";
 
-export default function ParameterScreen() {
+export default function SettingsScreen() {
   const anneeActuelle = new Date().getFullYear();
   const clearData = () => {
     Alert.alert(
@@ -37,7 +37,23 @@ export default function ParameterScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      <Header />
+      {/* <Header /> */}
+      <View style={styles.cardContainer}>
+        <Text style={styles.label}>Préferences</Text>
+        <View style={styles.card}>
+          <TouchableOpacity style={styles.button} onPress={()=>router.push("/settings/category")}>
+            <View style={styles.action}>
+              <Text style={styles.buttonLabel}>
+                Catégories
+              </Text>
+              <Image
+                source={require("@/assets/images/category.png")}
+                style={styles.icon}
+              />
+            </View>
+          </TouchableOpacity>
+        </View>
+      </View>
       <View style={styles.cardContainer}>
         <Text style={styles.label}>Données & Sécurité</Text>
         <View style={styles.card}>
@@ -48,7 +64,7 @@ export default function ParameterScreen() {
               </Text>
               <Image
                 source={require("@/assets/images/trash.png")}
-                style={{ width: 20, height: 20 }}
+                style={styles.icon}
               />
             </View>
           </TouchableOpacity>
@@ -95,6 +111,7 @@ const styles = StyleSheet.create({
     height: 40,
     display: "flex",
     justifyContent: "center",
+    borderBlockColor: "black"
   },
   label: {
     color: "#609bb4",
@@ -118,4 +135,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontStyle: "italic",
   },
+  icon:{
+    width: 20, 
+    height: 20
+  }
 });
