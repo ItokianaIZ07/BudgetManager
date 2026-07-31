@@ -7,6 +7,10 @@ export default function Layout(){
                 name="index"
                 options={{title: "Paramètres"}}
             />
+            <Stack.Screen
+                name="category"
+                options={{title: "Catégorie"}}
+            />
         </Stack>
     )
 }

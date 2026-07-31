@@ -11,11 +11,15 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
-  Alert
+  Alert,
 } from "react-native";
+import FormModal from "@/components/category/FormModal";
 
 export default function CategoryScreen() {
   const [categories, setCategories] = useState<Categorie[]>([]);
+  const [visible, setVisible] = useState<boolean>(false);
+  const [categorieEdited, setCategorieEdited] = useState<Categorie>();
+  const [mode, setMode] = useState<string>("add");
 
   const loadCategories = ()=>{
     setCategories(CategorieRepository.recupererTous());
@@ -39,6 +43,13 @@ export default function CategoryScreen() {
         );
   };
 
+
+  const showEditModal = (categorie: Categorie)=> {
+    setCategorieEdited(categorie);
+    setMode("edit");
+    setVisible(true);
+  }
+
   useFocusEffect(useCallback(()=>{
     loadCategories();
   }, []))
@@ -48,12 +59,13 @@ export default function CategoryScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      <TouchableOpacity style={styles.addContainer}>
+      <TouchableOpacity onPress={()=>setVisible(true)} style={styles.addContainer}>
         <Image
           source={require("@/assets/images/tabIcons/square-plus.png")}
           style={styles.icon}
         />
       </TouchableOpacity>
+      <FormModal visible={visible} setVisible={setVisible} mode={mode} setMode={setMode} categorie={categorieEdited} setCategorie={setCategorieEdited} />
       <FlatList
         style={styles.catContainer}
         ListHeaderComponent={()=>(
@@ -73,7 +85,7 @@ export default function CategoryScreen() {
                   style={styles.actionIcon}
                 />
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.actionContent, styles.actionEdit]}>
+              <TouchableOpacity onPress={()=>showEditModal(item)} style={[styles.actionContent, styles.actionEdit]}>
                 <Image 
                   source={require("@/assets/images/pencil.png")}
                   style={styles.actionIcon}
@@ -173,5 +185,5 @@ const styles = StyleSheet.create({
   actionIcon: {
     width: 20,
     height: 20
-  }
+  },
 });
