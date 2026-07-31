@@ -76,3 +76,11 @@ export const initializeData = async ()=>{
     console.error(error);
   }
 }
+
+export const resetDatabase = async () =>{
+  const requete = `DROP TABLE IF EXISTS`; 
+  const tables = ['categorie', 'depenses', 'app_metadata'];
+  for(const table of tables){
+    await db.runAsync(`${requete} ${table}`);
+  }
+}
