@@ -38,14 +38,14 @@ export default function SortComponent({onSort, onInput}: SortProps){
                     >
                         <TouchableOpacity
                             onPress={()=>{
-                                onSort(item.id),
-                                setFiltre(item.id)
+                                onSort(item.id!),
+                                setFiltre(item.id!)
                             }}
                         >
                             <Text
                                 style={item.id === filtre ? styles.focusLabel: styles.optionDefaultLabel}
                             >
-                                {item.label}
+                                {item.libelle}
                             </Text>
                         </TouchableOpacity>
                     </View>

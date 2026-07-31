@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { 
     StyleSheet, 
     View, 
@@ -11,6 +11,7 @@ import {
     Platform 
 } from "react-native";
 import { DepenseRepository } from "@/app/repositories/DepenseRepository";
+import { CategorieRepository } from "@/app/repositories/CategorieRepository";
 import { Float } from "react-native/Libraries/Types/CodegenTypes";
 import { Depense } from "@/models/Depense";
 import Header from "@/components/header";
@@ -51,15 +52,8 @@ export default function AddExpenseScreen() {
         resetChamp();
     };
 
-    const categories = [
-        { id: 1, label: "Alimentation" },
-        { id: 2, label: "Transport" },
-        { id: 3, label: "Loisirs" },
-        { id: 4, label: "Crédit" },
-        { id: 5, label: "Autre"}
-    ];
-
     const modesPaiement = ["Espèce", "Carte", "Virement"];
+    let categories = CategorieRepository.recupererTous();
 
     return (
         <KeyboardAvoidingView 
@@ -110,13 +104,13 @@ export default function AddExpenseScreen() {
                                     styles.pill,
                                     categorieId === cat.id && styles.pillActive
                                 ]}
-                                onPress={() => setCategorieId(cat.id)}
+                                onPress={() => setCategorieId(cat.id!)}
                             >
                                 <Text style={[
                                     styles.pillText,
                                     categorieId === cat.id && styles.pillTextActive
                                 ]}>
-                                    {cat.label}
+                                    {cat.libelle}
                                 </Text>
                             </TouchableOpacity>
                         ))}

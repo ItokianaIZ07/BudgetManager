@@ -9,6 +9,11 @@ export const initDatabase = async (): Promise<void> => {
     await db.execAsync(`
       PRAGMA foreign_keys = ON;
 
+      CREATE TABLE IF NOT EXISTS categorie (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        libelle TEXT NOT NULL
+      );
+
       CREATE TABLE IF NOT EXISTS depenses (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         montant REAL NOT NULL,
@@ -17,7 +22,8 @@ export const initDatabase = async (): Promise<void> => {
         categorie_id INTEGER NOT NULL,
         mode_paiement TEXT NOT NULL,
         cree_le TEXT DEFAULT CURRENT_TIMESTAMP,
-        mis_a_jour_le TEXT DEFAULT CURRENT_TIMESTAMP
+        mis_a_jour_le TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (categorie_id) REFERENCES categorie(id)
       );
     `);
     console.log('Base de données SQLite initialisée avec succès !');
@@ -25,3 +31,28 @@ export const initDatabase = async (): Promise<void> => {
     console.error('Erreur d\'initialisation SQLite :', error);
   }
 };
+
+export const initCategoryData = async (): Promise<void> => {
+  try{
+    await db.runAsync(`
+      INSERT INTO categorie (id, libelle) VALUES
+      (1, 'Alimentation'),
+      (2, 'Transport'),
+      (3, 'Loisirs'),
+      (4, 'Crédit'),
+      (5, 'Autre');
+    `);
+    console.log("Donnée inserer avec succès !");
+  }catch(error){
+    console.error('Erreur lors de l\'insertion des données de categorie : ', error)
+  }
+}
+
+export const hasCategoryData = () =>{
+  try{
+    const dataLength = db.getFirstSync<any>("SELECT COUNT(*) as taille FROM categorie");
+    return dataLength!.taille! > 0 ? true: false;
+  }catch(error){
+    console.error("Une erreur est survenue lors de la vérification de la table categorie",error)
+  }
+}

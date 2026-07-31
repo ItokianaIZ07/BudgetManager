@@ -18,6 +18,7 @@ import HistoryCard from "@/components/history/HistoryCard";
 import {Picker} from "@react-native-picker/picker"
 import Header from "@/components/header";
 import { Util } from "./utils/util";
+import {initDatabase, initCategoryData, hasCategoryData, db } from "@/database/sqlite";
 
 export default function PageAccueil() {
   const [estPret, setEstPret] = useState<boolean>(false);
@@ -64,17 +65,10 @@ export default function PageAccueil() {
   useEffect(() => {
     const preparerApplication = async () => {
       try {
-        // await initDatabase();
-        // await db.runAsync("DELETE FROM depenses");
-        // const depense : Depense = {
-        //   montant: 15000,
-        //   description: "Achat repas midi",
-        //   date: "2026-07-21",
-        //   categorie_id: 1,
-        //   mode_paiement: "Epsèce"
-        // };
-        // const generatedId = await DepenseRepository.ajouter(depense);
-        // console.log(generatedId);
+        await initDatabase();
+        if(!hasCategoryData()){
+          await initCategoryData();
+        }
       } catch (erreur) {
         console.error("Erreur au chargement :", erreur);
       } finally {
