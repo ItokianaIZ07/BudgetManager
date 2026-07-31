@@ -53,7 +53,7 @@ export default function AddExpenseScreen() {
     };
 
     const modesPaiement = ["Espèce", "Carte", "Virement"];
-    let categories = CategorieRepository.recupererTous();
+    const categories = CategorieRepository.recupererTous();
 
     return (
         <KeyboardAvoidingView 
