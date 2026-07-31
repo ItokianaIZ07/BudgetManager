@@ -18,7 +18,7 @@ import HistoryCard from "@/components/history/HistoryCard";
 import {Picker} from "@react-native-picker/picker"
 import Header from "@/components/header";
 import { Util } from "./utils/util";
-import {initDatabase, initializeData, isInitalized} from "@/database/sqlite";
+import {initDatabase, initializeData, isInitalized, resetDatabase} from "@/database/sqlite";
 
 export default function PageAccueil() {
   const [estPret, setEstPret] = useState<boolean>(false);
@@ -65,6 +65,7 @@ export default function PageAccueil() {
   useEffect(() => {
     const preparerApplication = async () => {
       try {
+        // await resetDatabase();
         await initDatabase();
         if(isInitalized() == 'false'){
           await initializeData();
@@ -78,14 +79,14 @@ export default function PageAccueil() {
     preparerApplication();
   }, []);
 
-  useEffect(()=>{
-    filtrerDepense();
-  }, [mois, annee]);
+  // useEffect(()=>{
+  //   filtrerDepense();
+  // }, [mois, annee]);
 
   useFocusEffect(
     useCallback(() => {
       chargerDepenses();
-      filtrerDepense();
+      // filtrerDepense();
     }, []),
   );
 

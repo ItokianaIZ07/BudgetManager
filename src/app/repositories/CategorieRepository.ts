@@ -7,5 +7,10 @@ export const CategorieRepository = {
         const response = db.getAllSync<Categorie>(requete);
 
         return response;
+    },
+
+    supprimerCategorie: async (id: number)=>{
+        const requete = "DELETE FROM categorie WHERE id=?";
+        await db.runAsync(requete, [id]);
     }
 }
