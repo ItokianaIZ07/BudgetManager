@@ -21,57 +21,71 @@ export default function CategoryScreen() {
   const [categorieEdited, setCategorieEdited] = useState<Categorie>();
   const [mode, setMode] = useState<string>("add");
 
-  const loadCategories = ()=>{
+  const loadCategories = () => {
     setCategories(CategorieRepository.recupererTous());
-  }
-
-  const deleteCategory = (id: number)=>{
-    Alert.alert(
-          "Confirmer la suppression",
-          "Es-tu sûr de vouloir supprimer catégorie ?",
-          [
-            { text: "Annuler", style: "cancel" },
-            {
-              text: "Supprimer",
-              style: "destructive",
-              onPress: async () =>{
-                await CategorieRepository.supprimerCategorie(id);
-                loadCategories()
-              },
-            },
-          ],
-        );
   };
 
+  const deleteCategory = (id: number) => {
+    Alert.alert(
+      "Confirmer la suppression",
+      "Es-tu sûr de vouloir supprimer catégorie ?",
+      [
+        { text: "Annuler", style: "cancel" },
+        {
+          text: "Supprimer",
+          style: "destructive",
+          onPress: async () => {
+            await CategorieRepository.supprimerCategorie(id);
+            loadCategories();
+          },
+        },
+      ],
+    );
+  };
 
-  const showEditModal = (categorie: Categorie)=> {
+  const showEditModal = (categorie: Categorie) => {
     setCategorieEdited(categorie);
     setMode("edit");
     setVisible(true);
-  }
+  };
 
-  useFocusEffect(useCallback(()=>{
-    loadCategories();
-  }, []))
+  useFocusEffect(
+    useCallback(() => {
+      loadCategories();
+    }, []),
+  );
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      <TouchableOpacity onPress={()=>setVisible(true)} style={styles.addContainer}>
+      <TouchableOpacity
+        onPress={() => setVisible(true)}
+        style={styles.addContainer}
+      >
         <Image
           source={require("@/assets/images/tabIcons/square-plus.png")}
           style={styles.icon}
         />
       </TouchableOpacity>
-      <FormModal visible={visible} setVisible={setVisible} mode={mode} setMode={setMode} categorie={categorieEdited} setCategorie={setCategorieEdited} />
+      <FormModal
+        onRefresh={loadCategories}
+        visible={visible}
+        setVisible={setVisible}
+        mode={mode}
+        setMode={setMode}
+        categorie={categorieEdited}
+        setCategorie={setCategorieEdited}
+      />
       <FlatList
         style={styles.catContainer}
-        ListHeaderComponent={()=>(
-            <View>
-                <Text style={styles.label}>Liste des catégories ({categories.length})</Text>
-            </View>
+        ListHeaderComponent={() => (
+          <View>
+            <Text style={styles.label}>
+              Liste des catégories ({categories.length})
+            </Text>
+          </View>
         )}
         data={categories}
         keyExtractor={(item) => item.libelle}
@@ -79,14 +93,20 @@ export default function CategoryScreen() {
           <View style={styles.categoryCard}>
             <Text style={styles.categoryLabel}>{item.libelle}</Text>
             <View style={styles.action}>
-              <TouchableOpacity onPress={()=>deleteCategory(item.id!)} style={[styles.actionContent, styles.actionDelete]}>
-                <Image 
+              <TouchableOpacity
+                onPress={() => deleteCategory(item.id!)}
+                style={[styles.actionContent, styles.actionDelete]}
+              >
+                <Image
                   source={require("@/assets/images/trash.png")}
                   style={styles.actionIcon}
                 />
               </TouchableOpacity>
-              <TouchableOpacity onPress={()=>showEditModal(item)} style={[styles.actionContent, styles.actionEdit]}>
-                <Image 
+              <TouchableOpacity
+                onPress={() => showEditModal(item)}
+                style={[styles.actionContent, styles.actionEdit]}
+              >
+                <Image
                   source={require("@/assets/images/pencil.png")}
                   style={styles.actionIcon}
                 />
@@ -116,21 +136,21 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
     borderRadius: 4,
-    margin: 8
+    margin: 8,
   },
-  catContainer:{
+  catContainer: {
     margin: 8,
     display: "flex",
     flexDirection: "column",
     borderRadius: 8,
-    gap: 8
+    gap: 8,
   },
   categoryCard: {
     padding: 8,
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
-    backgroundColor:"#FFF",
+    backgroundColor: "#FFF",
     marginVertical: 4,
     borderRadius: 8,
     shadowColor: "#000",
@@ -139,9 +159,9 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
     height: 56,
-    alignItems: "center"
+    alignItems: "center",
   },
-  categoryLabel : {
+  categoryLabel: {
     fontSize: 18,
     color: "#213755",
     // fontWeight: "bold"
@@ -162,10 +182,10 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: "space-between",
     alignItems: "center",
-    marginRight: 8
+    marginRight: 8,
   },
-  actionContent:{
-    width:32,
+  actionContent: {
+    width: 32,
     height: 32,
     alignItems: "center",
     justifyContent: "center",
@@ -177,13 +197,13 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   actionDelete: {
-    backgroundColor: "#e4c2c2c0"
+    backgroundColor: "#e4c2c2c0",
   },
   actionEdit: {
-    backgroundColor: "#8dcced"
+    backgroundColor: "#8dcced",
   },
   actionIcon: {
     width: 20,
-    height: 20
+    height: 20,
   },
 });

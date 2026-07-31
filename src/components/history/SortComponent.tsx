@@ -2,6 +2,7 @@ import { useFocusEffect } from "expo-router";
 import { useState } from "react";
 import {View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Image} from "react-native";
 import { Util } from "@/app/utils/util";
+import { CategorieRepository } from "@/app/repositories/CategorieRepository";
 
 interface SortProps {
     onSort : (id: number)=>void,
@@ -10,8 +11,16 @@ interface SortProps {
 
 export default function SortComponent({onSort, onInput}: SortProps){
     const [filtre, setFiltre] = useState<number>(-1);
+    const [options, setOptions] = useState<any[]>([]);
     
-    useFocusEffect(()=>setFiltre(-1));
+    useFocusEffect(()=>{
+        setFiltre(-1);
+        const opt = [
+            {id: -1, libelle: "Toutes"},
+            ...CategorieRepository.recupererTous()
+        ]
+        setOptions(opt);
+    });
 
     return (
         <View style={styles.container}>
@@ -30,7 +39,7 @@ export default function SortComponent({onSort, onInput}: SortProps){
                 />
             </View>
             <ScrollView horizontal={true} contentContainerStyle={styles.scrollContainer} showsHorizontalScrollIndicator={true}>
-                {Util.options.map((item)=>(
+                {options.map((item)=>(
                     <View key={item.id} style={[
                             styles.option,
                             item.id === filtre && styles.focus

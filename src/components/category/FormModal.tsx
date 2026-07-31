@@ -19,6 +19,7 @@ interface FormModalProps {
   setMode: (mode: string) => void;
   categorie?: Categorie;
   setCategorie: (categorie?: Categorie) => void;
+  onRefresh?: ()=>void
 }
 
 export default function FormModal({
@@ -28,6 +29,7 @@ export default function FormModal({
   setMode,
   categorie,
   setCategorie,
+  onRefresh
 }: FormModalProps) {
   const [nom, setNom] = useState<string>("");
 
@@ -50,13 +52,15 @@ export default function FormModal({
       if (mode == "add") {
         category = { libelle: nom };
         saveCategory(category);
-        message = "Categorie sauvegarder avec succès";
+        message = "Categorie sauvegardé avec succès";
       } else if (mode == "edit") {
         category = { id: categorie?.id, libelle: nom };
         updateCategory(category);
         message = "La categorie a été mis à jour";
       }
+      hideModal();
       Alert.alert(message);
+      onRefresh?.();
     } catch (error) {
       console.error(
         `Une erreur est survenue lors du mode: ${mode}\nError: ${error}`,
@@ -68,11 +72,8 @@ export default function FormModal({
     setCategorie();
     setMode("add");
     setVisible(false);
+    setNom("");
   };
-
-  useFocusEffect(()=>{
-    setNom(mode == "add" ? "" : categorie!.libelle);
-  })
 
   return (
     <Modal visible={visible} animationType="slide" transparent={true}>
@@ -83,7 +84,7 @@ export default function FormModal({
           </Text>
           <TextInput
             style={styles.input}
-            placeholder="Nom"
+            placeholder={mode === "add"? "Nom": categorie!.libelle}
             value={nom}
             onChangeText={setNom}
           />

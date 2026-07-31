@@ -22,7 +22,7 @@ export const CategorieRepository = {
     },
 
     mettreAJourCategorie: async (categorie: Categorie)=>{
-        const requete = "UPDATE TABLE categorie SET libelle = ? WHERE id = ?";
+        const requete = "UPDATE categorie SET libelle = ? WHERE id = ?";
         await db.runAsync(requete, [categorie.libelle, categorie.id!]);
     }
 }

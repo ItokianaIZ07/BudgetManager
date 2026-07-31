@@ -31,9 +31,4 @@ export const Util = {
     const [y, m, d] = date.split("-");
     return d + " " + getMonth(m) + " " + y;
   },
-
-  options: [
-    { id: -1, libelle: "Toutes" },
-    ...CategorieRepository.recupererTous()
-  ],
 };
