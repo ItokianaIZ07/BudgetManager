@@ -3,7 +3,7 @@ import { Categorie } from "@/models/Categorie";
 
 export const CategorieRepository = {
     recupererTous: ()=>{
-        const requete = "SELECT * FROM categorie";
+        const requete = "SELECT * FROM categorie ORDER BY id ASC";
         const response = db.getAllSync<Categorie>(requete);
 
         return response;
