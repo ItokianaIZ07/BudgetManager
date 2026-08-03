@@ -33,6 +33,15 @@ export default function DepenseCategorieContainer({
   useFocusEffect(() => {
     getListDepensePerCategory();
   });
+
+  if(listDepense.length == 0){
+    return (
+      <View style={styles.container}>
+        <Text style={styles.emptyLabel}>Aucune dépense enregistré pour le moment</Text>
+      </View>
+    )
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Catégories</Text>
@@ -105,5 +114,8 @@ const styles = StyleSheet.create({
   },
   progressBarContainer: {
     marginVertical: 8
+  },
+  emptyLabel:{
+    color:"#607b8c"
   }
 });

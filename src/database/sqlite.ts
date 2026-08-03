@@ -1,8 +1,8 @@
-import { AppMetaData } from '@/models/AppMetaData';
-import * as SQLite from 'expo-sqlite';
+import { AppMetaData } from "@/models/AppMetaData";
+import * as SQLite from "expo-sqlite";
 
 // Ouverture ou création du fichier de base de données locale
-export const db = SQLite.openDatabaseSync('budget_manager.db');
+export const db = SQLite.openDatabaseSync("budget_manager.db");
 
 // Fonction qui crée la table si elle n'existe pas encore
 export const initDatabase = async (): Promise<void> => {
@@ -34,15 +34,22 @@ export const initDatabase = async (): Promise<void> => {
 
       INSERT OR IGNORE INTO app_metadata(key, value) VALUES
       ('database_initialized', 'false');
+
+      CREATE TABLE IF NOT EXISTS limite_depense(
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          categorie_id INTEGER NOT NULL,
+          limite REAL NOT NULL,
+          FOREIGN KEY (categorie_id) REFERENCES categorie(id)
+      );
     `);
-    console.log('Base de données SQLite initialisée avec succès !');
+    console.log("Base de données SQLite initialisée avec succès !");
   } catch (error) {
-    console.error('Erreur d\'initialisation SQLite :', error);
+    console.error("Erreur d'initialisation SQLite :", error);
   }
 };
 
-const initCategoryData = async (): Promise<void> => {
-  try{
+const initData = async (): Promise<void> => {
+  try {
     await db.runAsync(`
       INSERT OR IGNORE INTO categorie (id, libelle) VALUES
       (1, 'Alimentation'),
@@ -50,37 +57,50 @@ const initCategoryData = async (): Promise<void> => {
       (3, 'Loisirs'),
       (4, 'Crédit'),
       (5, 'Autre');
+
+      INSERT INTO OR IGNORE limite_depense(categorie_id, limite) VALUES
+      (1, 500000),
+      (2, 1000000),
+      (3, 50000),
+      (4, 150000),
+      (5, 250000);
     `);
     console.log("Donnée inserer avec succès !");
-  }catch(error){
+  } catch (error) {
     const message = `Erreur lors de l\'insertion des données de categorie : ${error}`;
     throw message;
   }
-}
+};
 
-export const isInitalized = () =>{
-  try{
-    const result = db.getFirstSync<AppMetaData>("SELECT value FROM app_metadata WHERE key='database_initialized'");
+export const isInitalized = () => {
+  try {
+    const result = db.getFirstSync<AppMetaData>(
+      "SELECT value FROM app_metadata WHERE key='database_initialized'",
+    );
     return result != null ? result.value : null;
-  }catch(error){
-    console.error("Une erreur est survenue lors de la vérification de la table app_metadata",error)
+  } catch (error) {
+    console.error(
+      "Une erreur est survenue lors de la vérification de la table app_metadata",
+      error,
+    );
   }
-}
+};
 
-export const initializeData = async ()=>{
-  try{
-    await initCategoryData();
-    const requete = "UPDATE app_metadata SET value='true' WHERE key='database_initialized'";
+export const initializeData = async () => {
+  try {
+    await initData();
+    const requete =
+      "UPDATE app_metadata SET value='true' WHERE key='database_initialized'";
     await db.runAsync(requete);
-  }catch(error){
+  } catch (error) {
     console.error(error);
   }
-}
+};
 
-export const resetDatabase = async () =>{
-  const requete = `DROP TABLE IF EXISTS`; 
-  const tables = ['categorie', 'depenses', 'app_metadata'];
-  for(const table of tables){
+export const resetDatabase = async () => {
+  const requete = `DROP TABLE IF EXISTS`;
+  const tables = ["categorie", "depenses", "app_metadata", "limite_depense"];
+  for (const table of tables) {
     await db.runAsync(`${requete} ${table}`);
   }
-}
+};

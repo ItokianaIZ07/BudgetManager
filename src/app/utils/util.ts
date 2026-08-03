@@ -21,6 +21,9 @@ export const getMonth = (mois: string) => {
 
 export const Util = {
   formatNumber: (prix: number) => {
+    if(prix == null){
+      return 0
+    }
     return prix.toLocaleString("fr-FR", {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
