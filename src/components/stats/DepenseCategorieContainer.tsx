@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useFocusEffect } from "expo-router";
 import { Util } from "@/app/utils/util";
 import ProgressBar from "./ProgressBar";
+import { LimiteDepenseRepository } from "@/app/repositories/LimiteDepenseRepository";
+import { LimiteDepense } from "@/models/LimiteDepense";
 
 interface DepenseCategorieProps {
   mois: string;
@@ -22,13 +24,13 @@ export default function DepenseCategorieContainer({
       annee,
     );
     setListDepense(depenses !== undefined ? depenses : []);
+    const limites = await LimiteDepenseRepository.recuperTous();
+    console.log(limites.length);
   };
 
   const floatFormat = (nombre: number)=>{
     return nombre.toFixed(2);
   }
-
-  const tempLimite = 500000;
 
   useFocusEffect(() => {
     getListDepensePerCategory();
@@ -51,15 +53,15 @@ export default function DepenseCategorieContainer({
                 <View style={styles.info}>
                     <View style={styles.labelSection}>
                       <Text style={styles.categorieLabel}>{item.categorie}</Text>
-                      <Text style={styles.limitLabel}>Limité à {Util.formatNumber(tempLimite)} Ar</Text>
+                      <Text style={styles.limitLabel}>Limité à {Util.formatNumber(item.limite)} Ar</Text>
                     </View>
                     <View style={styles.labelSection}>
                       <Text style={styles.montantLabel}>{item.total} Ar</Text>
-                      <Text style={styles.limitLabel}>{floatFormat((item.total/tempLimite)*100)}% utilisé</Text>
+                      <Text style={styles.limitLabel}>{floatFormat((item.total/item.limite)*100)}% utilisé</Text>
                     </View>
                 </View>
                 <View style={styles.progressBarContainer}>
-                  <ProgressBar progress={item.total/tempLimite} color="#4a9d30" />
+                  <ProgressBar progress={item.total/item.limite} color="#4a9d30" />
                 </View>
             </View>
         ))}

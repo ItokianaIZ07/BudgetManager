@@ -51,7 +51,7 @@ export const DepenseRepository = {
   },
 
   recupererSommeMontantParCategorie: async(mois: string, annee: string) =>{
-    const requete = "SELECT c.id, c.libelle as categorie, SUM(d.montant) as total FROM depenses d RIGHT JOIN categorie c ON c.id = d.categorie_id WHERE d.date >= ? AND d.date <= date GROUP BY c.id ORDER BY total ASC";
+    const requete = "SELECT c.id, c.libelle as categorie, SUM(d.montant) as total, l.limite FROM depenses d JOIN categorie c ON c.id = d.categorie_id LEFT JOIN limite_depense l ON c.id = l.categorie_id WHERE d.date >= ? AND d.date <= date GROUP BY c.id ORDER BY total ASC";
     const stmt = await db.prepareAsync(requete);
     const resultat = await stmt.executeAsync<any>([`01-${mois}-${annee}` ,`31-${mois}-${annee}`]);
     try{

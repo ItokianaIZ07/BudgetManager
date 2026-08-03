@@ -48,7 +48,7 @@ export const initDatabase = async (): Promise<void> => {
   }
 };
 
-const initData = async (): Promise<void> => {
+const initCategorieData = async() : Promise<void> => {
   try {
     await db.runAsync(`
       INSERT OR IGNORE INTO categorie (id, libelle) VALUES
@@ -57,8 +57,18 @@ const initData = async (): Promise<void> => {
       (3, 'Loisirs'),
       (4, 'Crédit'),
       (5, 'Autre');
+    `);
+    console.log("Donnée inserer avec succès !");
+  } catch (error) {
+    const message = `Erreur lors de l\'insertion des données de categorie : ${error}`;
+    throw message;
+  }
+};
 
-      INSERT INTO OR IGNORE limite_depense(categorie_id, limite) VALUES
+const initLimiteData = async (): Promise<void> => {
+  try {
+    await db.runAsync(`
+      INSERT OR IGNORE INTO limite_depense(categorie_id, limite) VALUES
       (1, 500000),
       (2, 1000000),
       (3, 50000),
@@ -67,10 +77,18 @@ const initData = async (): Promise<void> => {
     `);
     console.log("Donnée inserer avec succès !");
   } catch (error) {
-    const message = `Erreur lors de l\'insertion des données de categorie : ${error}`;
+    const message = `Erreur lors de l\'insertion des données de limite_depense : ${error}`;
     throw message;
   }
 };
+
+const initData = async(): Promise<void>=>{
+  await initCategorieData();
+  console.log("Donnée catégorie inserée");
+
+  await initLimiteData();
+  console.log("Donnée limite des dépenses insérée");
+}
 
 export const isInitalized = () => {
   try {
@@ -99,7 +117,7 @@ export const initializeData = async () => {
 
 export const resetDatabase = async () => {
   const requete = `DROP TABLE IF EXISTS`;
-  const tables = ["categorie", "depenses", "app_metadata", "limite_depense"];
+  const tables = ["limite_depense", "depenses", "categorie", "app_metadata"];
   for (const table of tables) {
     await db.runAsync(`${requete} ${table}`);
   }
