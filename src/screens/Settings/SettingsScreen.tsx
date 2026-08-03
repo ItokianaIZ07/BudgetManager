@@ -11,6 +11,7 @@ import {
 import Header from "@/components/header";
 import { DepenseRepository } from "@/app/repositories/DepenseRepository";
 import { router } from "expo-router";
+import { resetDatabase, initDatabase, initializeData } from "@/database/sqlite";
 
 export default function SettingsScreen() {
   const anneeActuelle = new Date().getFullYear();
@@ -31,6 +32,26 @@ export default function SettingsScreen() {
       ],
     );
   };
+
+  const reconfigApp = ()=> {
+    Alert.alert(
+      "Confirmer la suppression",
+      "Es-tu sûr de vouloir restaurer les configurations de base ?\nToutes vos modifications seront perdus !",
+      [
+        { text: "Annuler", style: "cancel" },
+        {
+          text: "Supprimer",
+          style: "destructive",
+          onPress: async () => {
+            await resetDatabase();
+            await initDatabase();
+            await initializeData();
+            router.push('/');
+          }
+        },
+      ],
+    );
+  }
 
   return (
     <KeyboardAvoidingView
@@ -68,6 +89,17 @@ export default function SettingsScreen() {
               />
             </View>
           </TouchableOpacity>
+          <TouchableOpacity onPress={reconfigApp} style={styles.button}>
+            <View style={styles.action}>
+              <Text style={styles.buttonLabel}>
+                Restaures les configurations par défaut
+              </Text>
+              <Image
+                source={require("@/assets/images/refresh.png")}
+                style={styles.icon}
+              />
+            </View>
+          </TouchableOpacity>
         </View>
       </View>
       <View style={styles.footer}>
@@ -91,14 +123,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-    paddingVertical: 8,
+    display: "flex",
+    flexDirection: "column"
   },
   action: {
     display: "flex",
@@ -108,10 +134,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   button: {
-    height: 40,
+    height: 56,
     display: "flex",
     justifyContent: "center",
-    borderBlockColor: "black"
+    borderBlockColor: "black",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+    paddingVertical: 8,
+    marginVertical: 4,
   },
   label: {
     color: "#609bb4",

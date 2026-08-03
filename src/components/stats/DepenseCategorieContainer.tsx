@@ -24,8 +24,6 @@ export default function DepenseCategorieContainer({
       annee,
     );
     setListDepense(depenses !== undefined ? depenses : []);
-    const limites = await LimiteDepenseRepository.recuperTous();
-    console.log(limites.length);
   };
 
   const floatFormat = (nombre: number)=>{
