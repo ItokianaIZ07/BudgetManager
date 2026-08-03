@@ -6,8 +6,10 @@ import {
   Platform,
   KeyboardAvoidingView,
   Image,
+  ScrollView
 } from "react-native";
 import Header from "@/components/header";
+import DepenseCategorieContainer from "@/components/stats/DepenseCategorieContainer";
 import { useState } from "react";
 import { useFocusEffect } from "expo-router";
 import { DepenseRepository } from "@/app/repositories/DepenseRepository";
@@ -15,12 +17,12 @@ import { getMonth, Util } from "@/app/utils/util";
 
 export default function StatisticsScreen() {
   const [depenseMoisActuelle, setDepenseMoisActuelle] = useState<number>(0);
-  const dateActuelle = (new Date()).toISOString().split('T')[0];
-  const mois = dateActuelle.split('-')[1];
-  const annee = dateActuelle.split('-')[0];
+  const dateActuelle = new Date().toISOString().split("T")[0];
+  const mois = dateActuelle.split("-")[1];
+  const annee = dateActuelle.split("-")[0];
 
   const getDepenseDuMois = async () => {
-    const montant = await DepenseRepository.recupererSommeParMoisAnnee(mois, annee);
+    const montant = await DepenseRepository.recupererSommeParMoisAnnee(mois,annee);
     setDepenseMoisActuelle(montant !== null ? montant.total : 0);
   };
 
@@ -36,7 +38,9 @@ export default function StatisticsScreen() {
       <Header />
       <View style={styles.depenseContainer}>
         <View style={styles.depenseLabelContainer}>
-          <Text style={[styles.depenseLabel]}>Dépense de ce mois : {getMonth(mois)}</Text>
+          <Text style={styles.depenseLabel}>
+            Dépense de ce mois : {getMonth(mois)}
+          </Text>
           <Text style={[styles.depenseLabel, styles.depenseValue]}>
             {Util.formatNumber(depenseMoisActuelle)} Ar
           </Text>
@@ -48,6 +52,7 @@ export default function StatisticsScreen() {
           />
         </View>
       </View>
+      <DepenseCategorieContainer mois={mois} annee={annee} />
     </KeyboardAvoidingView>
   );
 }

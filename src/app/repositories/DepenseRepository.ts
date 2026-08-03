@@ -51,11 +51,17 @@ export const DepenseRepository = {
     await db.runAsync(requete);
   },
 
-  recupererSommeMontantParCategorie: async(): Promise<any[]> =>{
-    const requete = "SELECT c.libelle, SUM(d.montant) FROM depenses d JOIN categorie ON c.id = d.categorie_id GROUP BY c.id";
-    const resultat = await db.getAllAsync<any>(requete);
-
-    return resultat;
+  recupererSommeMontantParCategorie: async(mois: string, annee: string) =>{
+    const requete = "SELECT c.id, c.libelle as categorie, SUM(d.montant) as total FROM depenses d LEFT JOIN categorie c ON c.id = d.categorie_id WHERE d.date >= ? AND d.date <= date GROUP BY c.id ORDER BY total ASC";
+    const stmt = await db.prepareAsync(requete);
+    const resultat = await stmt.executeAsync<any>([`01-${mois}-${annee}` ,`31-${mois}-${annee}`]);
+    try{
+      return await resultat.getAllAsync();
+    }catch(error){
+      console.error("Une erreur est survenue lors de la recupération des dépenses par catégorie", error);
+    }finally{
+      await stmt.finalizeAsync();
+    }
   },
 
   recupererSommeParMoisAnnee: async(mois: string, annee:string): Promise<any|null> =>{
