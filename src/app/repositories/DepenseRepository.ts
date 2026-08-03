@@ -1,6 +1,5 @@
 import { db } from "@/database/sqlite";
 import { Depense } from "@/models/Depense";
-
 export const DepenseRepository = {
   ajouter: async (depense: Omit<Depense, "id">): Promise<number> => {
     const requete =
@@ -52,7 +51,7 @@ export const DepenseRepository = {
   },
 
   recupererSommeMontantParCategorie: async(mois: string, annee: string) =>{
-    const requete = "SELECT c.id, c.libelle as categorie, SUM(d.montant) as total FROM depenses d LEFT JOIN categorie c ON c.id = d.categorie_id WHERE d.date >= ? AND d.date <= date GROUP BY c.id ORDER BY total ASC";
+    const requete = "SELECT c.id, c.libelle as categorie, SUM(d.montant) as total FROM depenses d RIGHT JOIN categorie c ON c.id = d.categorie_id WHERE d.date >= ? AND d.date <= date GROUP BY c.id ORDER BY total ASC";
     const stmt = await db.prepareAsync(requete);
     const resultat = await stmt.executeAsync<any>([`01-${mois}-${annee}` ,`31-${mois}-${annee}`]);
     try{
@@ -68,7 +67,12 @@ export const DepenseRepository = {
     const requete = "SELECT SUM(montant) AS total FROM depenses WHERE date >= ? AND date <= ?";
     const stmt = await db.prepareAsync(requete);
     const resultat = await stmt.executeAsync<any>([`01-${mois}-${annee}` ,`31-${mois}-${annee}`])
-    
-    return await resultat.getFirstAsync();
+    try{
+      return await resultat.getFirstAsync();
+    }catch(error){
+      console.error(error);
+    }finally{
+      await stmt.finalizeAsync();
+    }
   }
 };

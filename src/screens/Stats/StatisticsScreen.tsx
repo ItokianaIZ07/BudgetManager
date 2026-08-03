@@ -73,6 +73,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
     height: 80,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   depenseLabelContainer: {
     display: "flex",

@@ -3,6 +3,7 @@ import { DepenseRepository } from "@/app/repositories/DepenseRepository";
 import { useState } from "react";
 import { useFocusEffect } from "expo-router";
 import { Util } from "@/app/utils/util";
+import ProgressBar from "./ProgressBar";
 
 interface DepenseCategorieProps {
   mois: string;
@@ -49,6 +50,7 @@ export default function DepenseCategorieContainer({
                     </View>
                 </View>
                 <View>
+                  <ProgressBar progress={item.total/tempLimite} color="#4a9d30" />
                     {/* <StatusBar
                       animated={true}
                       barStyle={"dark-content"}
