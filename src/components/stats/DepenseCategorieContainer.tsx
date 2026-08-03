@@ -49,15 +49,8 @@ export default function DepenseCategorieContainer({
                       <Text style={styles.limitLabel}>{floatFormat((item.total/tempLimite)*100)}% utilisé</Text>
                     </View>
                 </View>
-                <View>
+                <View style={styles.progressBarContainer}>
                   <ProgressBar progress={item.total/tempLimite} color="#4a9d30" />
-                    {/* <StatusBar
-                      animated={true}
-                      barStyle={"dark-content"}
-                      key={item.id}
-                      hidden={false}
-                      backgroundColor={"blue"}
-                    /> */}
                 </View>
             </View>
         ))}
@@ -109,5 +102,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#16689e",
     fontWeight: "bold"
+  },
+  progressBarContainer: {
+    marginVertical: 8
   }
 });
