@@ -1,9 +1,10 @@
 import { db } from "@/database/sqlite"
 import { Categorie } from "@/models/Categorie";
+import { LimiteDepenseRepository } from "./LimiteDepenseRepository";
 
 export const CategorieRepository = {
     recupererTous: ()=>{
-        const requete = "SELECT * FROM categorie ORDER BY id ASC";
+        const requete = "SELECT c.id, c.libelle, l.limite FROM categorie c JOIN limite_depense l ON l.categorie_id = c.id ORDER BY c.id ASC";
         const response = db.getAllSync<Categorie>(requete);
 
         return response;

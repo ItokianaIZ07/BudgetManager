@@ -1,5 +1,7 @@
 import { CategorieRepository } from "@/app/repositories/CategorieRepository";
+import { LimiteDepenseRepository } from "@/app/repositories/LimiteDepenseRepository";
 import { Categorie } from "@/models/Categorie";
+import { LimiteDepense } from "@/models/LimiteDepense";
 import { useFocusEffect } from "expo-router";
 import { useState } from "react";
 import {
@@ -32,29 +34,46 @@ export default function FormModal({
   onRefresh
 }: FormModalProps) {
   const [nom, setNom] = useState<string>("");
+  const [limite, setLimite] = useState<string>("");
 
   const saveCategory = async (category: Categorie) => {
-    CategorieRepository.sauvegarderCategorie(category);
+    const idInserted = await CategorieRepository.sauvegarderCategorie(category);
+    const limiteDepense: LimiteDepense = {
+      idCategorie: idInserted,
+      limite: category.limite!
+    }
+    await LimiteDepenseRepository.sauvegarderLimite(limiteDepense);
   };
 
   const updateCategory = async (category: Categorie) => {
     CategorieRepository.mettreAJourCategorie(category);
+    await LimiteDepenseRepository.mettreAJourLimite(category);
   };
 
   const save = () => {
-    if (nom.trim() === "") {
-      Alert.alert("Veuillez entrez un nom pour la catégorie");
-      return;
-    }
     let category: Categorie = { libelle: "" };
     let message: string = "";
     try {
       if (mode == "add") {
-        category = { libelle: nom };
+        if (nom.trim() === "") {
+          Alert.alert("Veuillez entrez un nom pour la catégorie");
+          return;
+        }
+        if(limite.trim() === ""){
+          Alert.alert("Veuillez entrez une limite de dépense pour la catégorie");
+          return;
+        }
+        category = { libelle: nom, limite: parseFloat(limite)};
         saveCategory(category);
         message = "Categorie sauvegardé avec succès";
       } else if (mode == "edit") {
-        category = { id: categorie?.id, libelle: nom };
+        if(nom.trim() === ""){
+          setNom(categorie!.libelle!);
+        }
+        if(limite.trim() === ""){
+          setLimite(categorie!.limite!.toString());
+        }
+        category = { id: categorie?.id, libelle: nom, limite: parseFloat(limite) };
         updateCategory(category);
         message = "La categorie a été mis à jour";
       }
@@ -73,6 +92,7 @@ export default function FormModal({
     setMode("add");
     setVisible(false);
     setNom("");
+    setLimite("");
   };
 
   return (
@@ -87,6 +107,13 @@ export default function FormModal({
             placeholder={mode === "add"? "Nom": categorie!.libelle}
             value={nom}
             onChangeText={setNom}
+          />
+          <TextInput
+            style={styles.input}
+            inputMode="numeric"
+            placeholder={mode === "add"? "100 000 Ar": categorie!.limite?.toString()}
+            value={limite}
+            onChangeText={setLimite}
           />
           <View style={styles.buttonContainer}>
             <Button title="Enregistrer" onPress={save} />
@@ -109,6 +136,8 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 15,
     backgroundColor: "white",
+    display: "flex",
+    flexDirection: "column",
   },
   buttonContainer: {
     display: "flex",
@@ -120,5 +149,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#bdbdbd5a",
     borderRadius: 8,
     paddingHorizontal: 8,
+    marginVertical: 4
   },
 });
