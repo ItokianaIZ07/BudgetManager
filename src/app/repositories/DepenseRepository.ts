@@ -49,5 +49,20 @@ export const DepenseRepository = {
   supprimerTout : async(): Promise<void> =>{
     const requete = "DELETE FROM depenses";
     await db.runAsync(requete);
+  },
+
+  recupererSommeMontantParCategorie: async(): Promise<any[]> =>{
+    const requete = "SELECT c.libelle, SUM(d.montant) FROM depenses d JOIN categorie ON c.id = d.categorie_id GROUP BY c.id";
+    const resultat = await db.getAllAsync<any>(requete);
+
+    return resultat;
+  },
+
+  recupererSommeParMoisAnnee: async(mois: string, annee:string): Promise<any|null> =>{
+    const requete = "SELECT SUM(montant) AS total FROM depenses WHERE date >= ? AND date <= ?";
+    const stmt = await db.prepareAsync(requete);
+    const resultat = await stmt.executeAsync<any>([`01-${mois}-${annee}` ,`31-${mois}-${annee}`])
+    
+    return await resultat.getFirstAsync();
   }
 };
