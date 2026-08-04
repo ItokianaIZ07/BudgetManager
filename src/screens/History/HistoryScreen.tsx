@@ -5,7 +5,7 @@ import SortComponent from "@/components/history/SortComponent";
 import { AppTheme } from "@/constants/theme";
 import { Depense } from "@/models/Depense";
 import { router, useFocusEffect } from "expo-router";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
     Button,
     FlatList,
@@ -52,9 +52,9 @@ export default function HistoryScreen() {
     setDepenses(donnees);
   };
 
-  useFocusEffect(() => {
+  useFocusEffect(useCallback(() => {
     sortById(-1);
-  });
+  }, []));
 
   return (
     <KeyboardAvoidingView

@@ -74,5 +74,5 @@ export const DepenseRepository = {
     }finally{
       await stmt.finalizeAsync();
     }
-  }
+  },
 };

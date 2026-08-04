@@ -9,20 +9,31 @@ import {
 } from "react-native";
 import { AppTheme } from "@/constants/theme";
 import { NotificationType } from "@/models/Notification";
+import { useStatsStore } from "@/store/statsStore";
+import { Util } from "@/app/utils/util";
 
 export default function Notification() {
   const notifications: NotificationType[] = [];
+  const depenses = useStatsStore(state=>state.depenses);
 
-  notifications.push({
-    type: "alert",
-    content: "Les dépense dans la catégorie alimtentation ont atteint 80%",
-  });
-
-  notifications.push({
-    type: "info",
-    content:
-      "Vos dépense dans la catégorie crédit sont 2% de plus que le mois précédent",
-  });
+  for (let depense of depenses) {
+    const consommation = depense.total / depense.limite;
+    const notif : NotificationType = {
+      type: "alert",
+      content : ""
+    };
+    if (consommation >= 0.8 && consommation < 1) {
+      notif.content = `La consommation de la catégorie ${depense.categorie} a atteint plus de 80%.`;
+    } else if (consommation == 1) {
+      notif.content = `La consommation de la catégorie ${depense.categorie} a atteint la limite de ${Util.formatNumber(depense.limite)} Ar`;
+    }
+    else if (consommation > 1){
+      notif.content = `La consommation de la catégorie ${depense.categorie} a dépassé la limite de ${Util.formatNumber(depense.limite)} Ar`;
+    }
+    if (notif.content.trim() !== "") {
+      notifications.push(notif);
+    }
+  }
 
   if (notifications.length == 0) {
     return (

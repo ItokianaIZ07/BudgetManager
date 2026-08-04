@@ -4,8 +4,9 @@ import Header from "@/components/header";
 import { AppTheme } from "@/constants/theme";
 import { Categorie } from "@/models/Categorie";
 import { Depense } from "@/models/Depense";
+import { useStatsStore } from "@/store/statsStore";
 import { useFocusEffect } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
     Alert,
     KeyboardAvoidingView,
@@ -26,6 +27,10 @@ export default function AddExpenseScreen() {
   const [listModePaiement, setListModePaiement] = useState<string[]>([]);
   const [categories, setCategories] = useState<Categorie[]>([]);
   const regex = /^\d+$/;
+  const setStatDepense = useStatsStore((state)=>state.setDepenses);
+  const date = new Date().toISOString().split("T")[0];
+  const mois = date.split("-")[1];
+  const annee = date.split("-")[0];
 
   function isValid(): boolean {
     try {
@@ -67,17 +72,19 @@ export default function AddExpenseScreen() {
     };
 
     await DepenseRepository.ajouter(depense);
+    const depenses = await DepenseRepository.recupererSommeMontantParCategorie(mois, annee);
+    setStatDepense(depenses!== undefined ? depenses: []);
     Alert.alert("Votre dépense a bien été sauvegarder");
     resetChamp();
-  };
+  };[]
 
   useEffect(() => {
     setListModePaiement(["Espèce", "Carte", "Virement"]);
   }, []);
 
-  useFocusEffect(() => {
+  useFocusEffect(useCallback(() => {
     setCategories(CategorieRepository.recupererTous());
-  });
+  }, []));
 
   return (
     <KeyboardAvoidingView

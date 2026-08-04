@@ -1,7 +1,7 @@
 import { CategorieRepository } from "@/app/repositories/CategorieRepository";
 import { AppTheme } from "@/constants/theme";
 import { useFocusEffect } from "expo-router";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
     Image,
     ScrollView,
@@ -21,14 +21,14 @@ export default function SortComponent({ onSort, onInput }: SortProps) {
   const [filtre, setFiltre] = useState<number>(-1);
   const [options, setOptions] = useState<any[]>([]);
 
-  useFocusEffect(() => {
+  useFocusEffect(useCallback(() => {
     setFiltre(-1);
     const opt = [
       { id: -1, libelle: "Toutes" },
       ...CategorieRepository.recupererTous(),
     ];
     setOptions(opt);
-  });
+  }, []));
 
   return (
     <View style={styles.container}>

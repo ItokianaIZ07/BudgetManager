@@ -6,17 +6,18 @@ import { Depense } from "@/models/Depense";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-    ActivityIndicator,
-    Button,
-    FlatList,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    Text,
-    View,
+  ActivityIndicator,
+  Button,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 import { DepenseRepository } from "./repositories/DepenseRepository";
 import { Util } from "./utils/util";
+import { useStatsStore } from "@/store/statsStore";
 
 export default function PageAccueil() {
   const [estPret, setEstPret] = useState<boolean>(false);
@@ -27,12 +28,19 @@ export default function PageAccueil() {
   const moisCourant = String(dateActuelle.getMonth() + 1).padStart(2, "0");
   const anneeCourante = String(dateActuelle.getFullYear());
 
+  const date = new Date().toISOString().split("T")[0];
+  const mois = date.split("-")[1];
+  const annee = date.split("-")[0];
+
+  const setDepensesStats = useStatsStore((state) => state.setDepenses);
+
   const total = useMemo(() => {
     return depenses.reduce((somme, item) => somme + item.montant, 0);
   }, [depenses]);
 
-  const rechargeDepense = (id: number) => {
+  const rechargeDepense = async (id: number) => {
     setDepenses((depenses) => depenses.filter((item) => item.id !== id));
+    await initialiserDonneeDepense();
   };
 
   async function chargerDepenses() {
@@ -45,6 +53,14 @@ export default function PageAccueil() {
     rechargeDepense(id);
   }
 
+  async function initialiserDonneeDepense() {
+    const data = await DepenseRepository.recupererSommeMontantParCategorie(
+      mois,
+      annee,
+    );
+    setDepensesStats(data !== undefined ? data: []);
+  }
+
   useEffect(() => {
     const preparerApplication = async () => {
       try {
@@ -52,6 +68,7 @@ export default function PageAccueil() {
         if (isInitalized() == "false") {
           await initializeData();
         }
+        await initialiserDonneeDepense();
       } catch (erreur) {
         console.error("Erreur au chargement :", erreur);
       } finally {

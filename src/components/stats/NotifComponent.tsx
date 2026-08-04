@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { View, Text, StyleSheet, Image, ScrollView } from "react-native";
 import { Util } from "@/app/utils/util";
 import { useFocusEffect } from "expo-router";
@@ -34,9 +34,9 @@ export default function NotifComponent({ listDepense }: NotifComponentProps) {
     }
   };
 
-  useFocusEffect(() => {
+  useFocusEffect(useCallback(() => {
     checkLimit();
-  });
+  }, []));
 
   return (
     notification.trim() !== "" && (

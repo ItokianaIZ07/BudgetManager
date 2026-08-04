@@ -1,23 +1,13 @@
-import { DepenseRepository } from "@/app/repositories/DepenseRepository";
 import { Util } from "@/app/utils/util";
 import { AppTheme } from "@/constants/theme";
-import { useFocusEffect } from "expo-router";
-import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import ProgressBar from "./ProgressBar";
 
 interface DepenseCategorieProps {
-  mois: string;
-  annee: string;
   listDepense: any[];
 }
 
-export default function DepenseCategorieContainer({
-  mois,
-  annee,
-  listDepense,
-}: DepenseCategorieProps) {
-  const [message, setMessage] = useState<string[]>([]);
+export default function DepenseCategorieContainer({listDepense,}: DepenseCategorieProps) {
 
   const floatFormat = (nombre: number) => {
     return nombre.toFixed(2);
