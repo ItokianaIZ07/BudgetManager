@@ -15,6 +15,7 @@ import { useState } from "react";
 import { useFocusEffect } from "expo-router";
 import { DepenseRepository } from "@/app/repositories/DepenseRepository";
 import { getMonth, Util } from "@/app/utils/util";
+import { AppTheme } from "@/constants/theme";
 
 export default function StatisticsScreen() {
   const [depenseMoisActuelle, setDepenseMoisActuelle] = useState<number>(0);
@@ -81,7 +82,7 @@ const styles = StyleSheet.create({
     margin: 8,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: "#258f45",
+    backgroundColor: AppTheme.colors.primary,
     borderRadius: 8,
     alignItems: "center",
     height: 80,

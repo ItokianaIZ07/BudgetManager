@@ -38,7 +38,7 @@ export default function DepenseCategorieContainer({
       showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.scrollContainer}
     >
-      <Text style={styles.title}>Catégories</Text>
+      <Text style={styles.title}>Catégories({listDepense.length})</Text>
       {listDepense.map((item) => (
         <View style={styles.card} key={item.id}>
           <View style={styles.info}>
