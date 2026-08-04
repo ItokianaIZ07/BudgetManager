@@ -52,6 +52,12 @@ export default function StatHeader() {
     withTiming(1, { duration: 120 }),
   );
 
+  rotation.value = withSequence(
+    withTiming(-45, {duration: 100}),
+    withTiming(45, {duration:100}),
+    withTiming(0, {duration: 100})
+  )
+
   const ringBell = () => {
     rotation.value = withSequence(
       withTiming(-20, { duration: 70 }),
@@ -61,6 +67,10 @@ export default function StatHeader() {
       withTiming(-8, { duration: 70 }),
       withTiming(8, { duration: 70 }),
       withTiming(0, { duration: 70 }),
+    );
+    scale.value = withSequence(
+      withTiming(1.2, { duration: 120 }),
+      withTiming(1, { duration: 120 }),
     );
   };
 
