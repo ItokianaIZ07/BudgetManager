@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "BudgetManager",
+    "name": "Budget Manager",
     "slug": "BudgetManager",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/appIcon.png",
     "scheme": "budgetmanager",
     "userInterfaceStyle": "automatic",
     "ios": {

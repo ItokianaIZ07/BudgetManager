@@ -8,7 +8,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useStatsStore } from "@/store/statsStore";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { NotificationType } from "@/models/Notification";
 import { Util } from "@/app/utils/util";
 
@@ -16,25 +16,29 @@ export default function StatHeader() {
   const statsDepense = useStatsStore((state) => state.depenses);
   const rotation = useSharedValue(0);
   const scale = useSharedValue(1);
-  const notifications: NotificationType[] = [];
 
-  for (let depense of statsDepense) {
-    const consommation = depense.total / depense.limite;
-    const notif: NotificationType = {
-      type: "alert",
-      content: "",
-    };
-    if (consommation >= 0.8 && consommation < 1) {
-      notif.content = `La consommation de la catégorie ${depense.categorie} a atteint plus de 80%.`;
-    } else if (consommation == 1) {
-      notif.content = `La consommation de la catégorie ${depense.categorie} a atteint la limite de ${Util.formatNumber(depense.limite)} Ar`;
-    } else if (consommation > 1) {
-      notif.content = `La consommation de la catégorie ${depense.categorie} a dépassé la limite de ${Util.formatNumber(depense.limite)} Ar`;
+  const notifications = useMemo(() => {
+    const list: NotificationType[] = [];
+    for (let depense of statsDepense) {
+      if (!depense.limite || depense.limite === 0) continue;
+
+      const consommation = depense.total / depense.limite;
+      let content = "";
+
+      if (consommation >= 0.8 && consommation < 1) {
+        content = `La consommation de la catégorie ${depense.categorie} a atteint plus de 80%.`;
+      } else if (consommation === 1) {
+        content = `La consommation de la catégorie ${depense.categorie} a atteint la limite de ${Util.formatNumber(depense.limite)} Ar`;
+      } else if (consommation > 1) {
+        content = `La consommation de la catégorie ${depense.categorie} a dépassé la limite de ${Util.formatNumber(depense.limite)} Ar`;
+      }
+
+      if (content.trim() !== "") {
+        list.push({ type: "alert", content });
+      }
     }
-    if (notif.content.trim() !== "") {
-      notifications.push(notif);
-    }
-  }
+    return list;
+  }, [statsDepense]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
@@ -53,10 +57,10 @@ export default function StatHeader() {
   );
 
   rotation.value = withSequence(
-    withTiming(-45, {duration: 100}),
-    withTiming(45, {duration:100}),
-    withTiming(0, {duration: 100})
-  )
+    withTiming(-45, { duration: 100 }),
+    withTiming(45, { duration: 100 }),
+    withTiming(0, { duration: 100 }),
+  );
 
   const ringBell = () => {
     rotation.value = withSequence(
@@ -74,11 +78,13 @@ export default function StatHeader() {
     );
   };
 
+  const notificationsCount = notifications.length;
+
   useEffect(() => {
-    if (notifications.length > 0) {
+    if (notificationsCount > 0) {
       ringBell();
     }
-  }, [notifications]);
+  }, [notificationsCount]);
 
   return (
     <View style={styles.headerApp}>
@@ -87,7 +93,15 @@ export default function StatHeader() {
         <Text style={styles.headerSubtitle}>Gère tes dépenses en douceur</Text>
       </View>
       <TouchableOpacity
-        style={[styles.logoWrapper, {backgroundColor: notifications.length > 0 ? AppTheme.colors.dangerSoft : AppTheme.colors.primarySoft}]}
+        style={[
+          styles.logoWrapper,
+          {
+            backgroundColor:
+              notifications.length > 0
+                ? AppTheme.colors.dangerSoft
+                : AppTheme.colors.primarySoft,
+          },
+        ]}
         onPress={() => {
           ringBell();
           router.push("/statistics/notification");
