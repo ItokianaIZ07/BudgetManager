@@ -1,19 +1,94 @@
 import { AppTheme } from "@/constants/theme";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSequence,
+  withTiming,
+} from "react-native-reanimated";
+import { useStatsStore } from "@/store/statsStore";
+import { useEffect, useState } from "react";
+import { NotificationType } from "@/models/Notification";
+import { Util } from "@/app/utils/util";
 
 export default function StatHeader() {
+  const statsDepense = useStatsStore((state) => state.depenses);
+  const rotation = useSharedValue(0);
+  const scale = useSharedValue(1);
+  const notifications: NotificationType[] = [];
+
+  for (let depense of statsDepense) {
+    const consommation = depense.total / depense.limite;
+    const notif: NotificationType = {
+      type: "alert",
+      content: "",
+    };
+    if (consommation >= 0.8 && consommation < 1) {
+      notif.content = `La consommation de la catégorie ${depense.categorie} a atteint plus de 80%.`;
+    } else if (consommation == 1) {
+      notif.content = `La consommation de la catégorie ${depense.categorie} a atteint la limite de ${Util.formatNumber(depense.limite)} Ar`;
+    } else if (consommation > 1) {
+      notif.content = `La consommation de la catégorie ${depense.categorie} a dépassé la limite de ${Util.formatNumber(depense.limite)} Ar`;
+    }
+    if (notif.content.trim() !== "") {
+      notifications.push(notif);
+    }
+  }
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        rotate: `${rotation.value}deg`,
+      },
+      {
+        scale: scale.value,
+      },
+    ],
+  }));
+
+  scale.value = withSequence(
+    withTiming(1.2, { duration: 120 }),
+    withTiming(1, { duration: 120 }),
+  );
+
+  const ringBell = () => {
+    rotation.value = withSequence(
+      withTiming(-20, { duration: 70 }),
+      withTiming(20, { duration: 70 }),
+      withTiming(-15, { duration: 70 }),
+      withTiming(15, { duration: 70 }),
+      withTiming(-8, { duration: 70 }),
+      withTiming(8, { duration: 70 }),
+      withTiming(0, { duration: 70 }),
+    );
+  };
+
+  useEffect(() => {
+    if (notifications.length > 0) {
+      ringBell();
+    }
+  }, [notifications]);
+
   return (
     <View style={styles.headerApp}>
       <View style={styles.headerTextBlock}>
         <Text style={styles.headerTitle}>Suivi de Budget</Text>
         <Text style={styles.headerSubtitle}>Gère tes dépenses en douceur</Text>
       </View>
-      <TouchableOpacity style={styles.logoWrapper} onPress={()=>router.push("/statistics/notification")}>
-        <Image
-          source={require("@/assets/images/bell-ringing.png")}
-          style={styles.logo}
-        />
+      <TouchableOpacity
+        style={[styles.logoWrapper, {backgroundColor: notifications.length > 0 ? AppTheme.colors.dangerSoft : AppTheme.colors.primarySoft}]}
+        onPress={() => {
+          ringBell();
+          router.push("/statistics/notification");
+        }}
+      >
+        <Animated.View style={animatedStyle}>
+          <Image
+            source={require("@/assets/images/bell-ringing.png")}
+            style={styles.logo}
+          />
+        </Animated.View>
       </TouchableOpacity>
     </View>
   );
@@ -52,8 +127,7 @@ const styles = StyleSheet.create({
   logoWrapper: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: AppTheme.colors.primarySoft,
+    borderRadius: 50,
     alignItems: "center",
     justifyContent: "center",
   },
