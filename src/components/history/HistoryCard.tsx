@@ -4,6 +4,12 @@ import { Depense } from "@/models/Depense";
 import { StyleSheet, Text, View } from "react-native";
 import DeleteButton from "./DeleteButton";
 import { CategorieRepository } from "@/app/repositories/CategorieRepository";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming
+} from "react-native-reanimated";
+import { scheduleOnRN } from "react-native-worklets";
 
 interface HistoryCardProps {
   item: Depense;
@@ -11,20 +17,53 @@ interface HistoryCardProps {
 }
 
 export default function HistoryCard({ item, onDelete }: HistoryCardProps) {
-  const getCategorie = async (id: number)=>{
+  const getCategorie = async (id: number) => {
     const categorie = await CategorieRepository.recupererParId(id);
     return categorie?.libelle;
-  }
+  };
+
+  const translateX = useSharedValue(0);
+  const opacity = useSharedValue(1);
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          translateX: translateX.value,
+        },
+      ],
+      opacity: opacity.value,
+    };
+  });
+
+  const animeSuppression = (item: Depense) => {
+    translateX.value = withTiming(500, {
+      duration: 300,
+    });
+
+    opacity.value = withTiming(
+      0,
+      {
+        duration: 300,
+      },
+      (finished) => {
+        if (finished) {
+          scheduleOnRN(onDelete, item.id!)
+        }
+      },
+    );
+  };
 
   return (
-    <View style={styles.card}>
+    <Animated.View style={[styles.card, animatedStyle]}>
       <View>
         <Text style={styles.title}>{item.description}</Text>
-        <Text style={styles.date}>{getCategorie(item.id!)} . {Util.formatDate(item.date)}</Text>
+        <Text style={styles.date}>
+          {getCategorie(item.id!)} . {Util.formatDate(item.date)}
+        </Text>
       </View>
       <Text style={styles.price}>{Util.formatNumber(item.montant)} Ar</Text>
-      <DeleteButton item={item} onDelete={onDelete} />
-    </View>
+      <DeleteButton item={item} onDelete={animeSuppression} />
+    </Animated.View>
   );
 }
 

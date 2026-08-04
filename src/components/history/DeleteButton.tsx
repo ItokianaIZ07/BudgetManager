@@ -3,7 +3,7 @@ import { Alert, Image, StyleSheet, TouchableOpacity, View } from "react-native";
 
 interface DeleteButtonProps {
   item: Depense;
-  onDelete: (id: number) => void;
+  onDelete: (item: Depense) => void;
 }
 
 export default function DeleteButton({ item, onDelete }: DeleteButtonProps) {
@@ -16,7 +16,7 @@ export default function DeleteButton({ item, onDelete }: DeleteButtonProps) {
         {
           text: "Supprimer",
           style: "destructive",
-          onPress: () => onDelete(id),
+          onPress: () => onDelete(item),  
         },
       ],
     );
