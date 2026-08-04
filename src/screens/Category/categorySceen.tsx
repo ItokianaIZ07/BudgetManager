@@ -1,19 +1,20 @@
 import { CategorieRepository } from "@/app/repositories/CategorieRepository";
+import FormModal from "@/components/category/FormModal";
+import { AppTheme } from "@/constants/theme";
 import { Categorie } from "@/models/Categorie";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import {
-  KeyboardAvoidingView,
-  View,
-  StyleSheet,
-  Text,
-  Platform,
-  FlatList,
-  TouchableOpacity,
-  Image,
-  Alert,
+    Alert,
+    FlatList,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import FormModal from "@/components/category/FormModal";
 
 export default function CategoryScreen() {
   const [categories, setCategories] = useState<Categorie[]>([]);
@@ -122,40 +123,37 @@ export default function CategoryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F7FAFC",
+    backgroundColor: AppTheme.colors.background,
   },
   addContainer: {
-    display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#60addd",
+    backgroundColor: AppTheme.colors.primary,
     paddingVertical: 8,
-    shadowColor: "#000",
+    shadowColor: AppTheme.colors.shadow,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 2,
-    borderRadius: 4,
+    borderRadius: AppTheme.radius.md,
     margin: 8,
   },
   catContainer: {
     margin: 8,
-    display: "flex",
     flexDirection: "column",
-    borderRadius: 8,
+    borderRadius: AppTheme.radius.md,
     gap: 8,
   },
   categoryCard: {
     padding: 8,
-    display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
-    backgroundColor: "#FFF",
+    backgroundColor: AppTheme.colors.surface,
     marginVertical: 4,
-    borderRadius: 8,
-    shadowColor: "#000",
+    borderRadius: AppTheme.radius.md,
+    shadowColor: AppTheme.colors.shadow,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.06,
     shadowRadius: 8,
     elevation: 2,
     height: 56,
@@ -163,19 +161,18 @@ const styles = StyleSheet.create({
   },
   categoryLabel: {
     fontSize: 18,
-    color: "#213755",
-    // fontWeight: "bold"
+    color: AppTheme.colors.text,
   },
   label: {
-    color: "#609bb4",
+    color: AppTheme.colors.textMuted,
     fontSize: 12,
+    marginBottom: 4,
   },
   icon: {
     width: 40,
     height: 40,
   },
   action: {
-    display: "flex",
     flexDirection: "row",
     gap: 4,
     width: 64,
@@ -190,17 +187,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 8,
-    shadowColor: "#333333",
+    shadowColor: AppTheme.colors.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 2,
   },
   actionDelete: {
-    backgroundColor: "#e4c2c2c0",
+    backgroundColor: AppTheme.colors.dangerSoft,
   },
   actionEdit: {
-    backgroundColor: "#8dcced",
+    backgroundColor: AppTheme.colors.primarySoft,
   },
   actionIcon: {
     width: 20,

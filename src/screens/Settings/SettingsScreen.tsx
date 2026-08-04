@@ -1,17 +1,17 @@
-import {
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  Alert,
-} from "react-native";
-import Header from "@/components/header";
 import { DepenseRepository } from "@/app/repositories/DepenseRepository";
+import { AppTheme } from "@/constants/theme";
+import { initDatabase, initializeData, resetDatabase } from "@/database/sqlite";
 import { router } from "expo-router";
-import { resetDatabase, initDatabase, initializeData } from "@/database/sqlite";
+import {
+    Alert,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
 
 export default function SettingsScreen() {
   const anneeActuelle = new Date().getFullYear();
@@ -26,14 +26,14 @@ export default function SettingsScreen() {
           style: "destructive",
           onPress: () => {
             DepenseRepository.supprimerTout();
-            router.push('/');
-          }
+            router.push("/");
+          },
         },
       ],
     );
   };
 
-  const reconfigApp = ()=> {
+  const reconfigApp = () => {
     Alert.alert(
       "Confirmer la suppression",
       "Es-tu sûr de vouloir restaurer les configurations de base ?\nToutes vos modifications seront perdus !",
@@ -46,12 +46,12 @@ export default function SettingsScreen() {
             await resetDatabase();
             await initDatabase();
             await initializeData();
-            router.push('/');
-          }
+            router.push("/");
+          },
         },
       ],
     );
-  }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -62,11 +62,12 @@ export default function SettingsScreen() {
       <View style={styles.cardContainer}>
         <Text style={styles.label}>Préferences</Text>
         <View style={styles.card}>
-          <TouchableOpacity style={styles.button} onPress={()=>router.push("/settings/category")}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => router.push("/settings/category")}
+          >
             <View style={styles.action}>
-              <Text style={styles.buttonLabel}>
-                Catégories
-              </Text>
+              <Text style={styles.buttonLabel}>Catégories</Text>
               <Image
                 source={require("@/assets/images/category.png")}
                 style={styles.icon}
@@ -104,7 +105,8 @@ export default function SettingsScreen() {
       </View>
       <View style={styles.footer}>
         <Text style={styles.footerLabel}>
-          &copy; {anneeActuelle} - Budget Manager by ItokianaIZ07. Compte bien, dépense peu.
+          &copy; {anneeActuelle} - Budget Manager by ItokianaIZ07. Compte bien,
+          dépense peu.
         </Text>
       </View>
     </KeyboardAvoidingView>
@@ -114,20 +116,17 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F7FAFC",
+    backgroundColor: AppTheme.colors.background,
   },
   cardContainer: {
     margin: 16,
-    display: "flex",
     flexDirection: "column",
     gap: 8,
   },
   card: {
-    display: "flex",
-    flexDirection: "column"
+    flexDirection: "column",
   },
   action: {
-    display: "flex",
     justifyContent: "space-between",
     flexDirection: "row",
     padding: 8,
@@ -135,43 +134,44 @@ const styles = StyleSheet.create({
   },
   button: {
     height: 56,
-    display: "flex",
     justifyContent: "center",
-    borderBlockColor: "black",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 8,
-    shadowColor: "#000",
+    backgroundColor: AppTheme.colors.surface,
+    borderRadius: AppTheme.radius.md,
+    shadowColor: AppTheme.colors.shadow,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 2,
     paddingVertical: 8,
     marginVertical: 4,
   },
   label: {
-    color: "#609bb4",
-    fontSize: 10,
+    color: AppTheme.colors.textMuted,
+    fontSize: 11,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   buttonLabel: {
     fontSize: 14,
-    color: "#384069",
+    color: AppTheme.colors.text,
     fontWeight: "bold",
   },
   footer: {
+    position: "absolute",
     bottom: 0,
-    display: "flex",
     alignItems: "center",
     padding: 8,
-    justifyContent: "flex-end",
-    flexDirection: "column",
+    width: "100%",
   },
   footerLabel: {
-    fontSize: 8,
+    fontSize: 9,
     textAlign: "center",
     fontStyle: "italic",
+    color: AppTheme.colors.textMuted,
   },
-  icon:{
-    width: 20, 
-    height: 20
-  }
+  icon: {
+    width: 20,
+    height: 20,
+  },
 });

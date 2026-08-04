@@ -1,48 +1,31 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  ActivityIndicator,
-  Button,
-  FlatList,
-  Image,
-  Alert,
-  KeyboardAvoidingView,
-  Platform
-} from "react-native";
-import { DepenseRepository } from "./repositories/DepenseRepository";
+import Header from "@/components/header";
+import HistoryCard from "@/components/history/HistoryCard";
+import { AppTheme } from "@/constants/theme";
+import { initDatabase, initializeData, isInitalized } from "@/database/sqlite";
 import { Depense } from "@/models/Depense";
 import { router, useFocusEffect } from "expo-router";
-import HistoryCard from "@/components/history/HistoryCard";
-import {Picker} from "@react-native-picker/picker"
-import Header from "@/components/header";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+    ActivityIndicator,
+    Button,
+    FlatList,
+    KeyboardAvoidingView,
+    Platform,
+    StyleSheet,
+    Text,
+    View,
+} from "react-native";
+import { DepenseRepository } from "./repositories/DepenseRepository";
 import { Util } from "./utils/util";
-import {initDatabase, initializeData, isInitalized, resetDatabase} from "@/database/sqlite";
 
 export default function PageAccueil() {
   const [estPret, setEstPret] = useState<boolean>(false);
   const [depenses, setDepenses] = useState<Depense[]>([]);
-  const [depenseFiltre, setDepenseFiltre] = useState<Depense[]>(depenses);
 
   const dateActuelle = new Date();
 
-  const moisCourant = String(dateActuelle.getMonth()+1).padStart(2, '0');
+  const moisCourant = String(dateActuelle.getMonth() + 1).padStart(2, "0");
   const anneeCourante = String(dateActuelle.getFullYear());
-
-  const [mois, setMois] = useState<string>(moisCourant);
-  const [annee, setAnnee] = useState<string>(anneeCourante);
-
-  const listAnnee = [];
-  for(let a = parseInt(anneeCourante) - 5; a <= parseInt(anneeCourante); a++){
-    listAnnee.push({
-      key:a + 5 - parseInt(anneeCourante), valeur:a.toString()
-    });
-  }
-
-  const filtrerDepense = () : void =>{
-    setDepenseFiltre((depenses)=> depenses.filter(d=> d.date.startsWith(annee+"-"+mois)));
-  }
 
   const total = useMemo(() => {
     return depenses.reduce((somme, item) => somme + item.montant, 0);
@@ -65,9 +48,8 @@ export default function PageAccueil() {
   useEffect(() => {
     const preparerApplication = async () => {
       try {
-        // await resetDatabase();
         await initDatabase();
-        if(isInitalized() == 'false'){
+        if (isInitalized() == "false") {
           await initializeData();
         }
       } catch (erreur) {
@@ -79,22 +61,19 @@ export default function PageAccueil() {
     preparerApplication();
   }, []);
 
-  // useEffect(()=>{
-  //   filtrerDepense();
-  // }, [mois, annee]);
-
   useFocusEffect(
     useCallback(() => {
       chargerDepenses();
-      // filtrerDepense();
     }, []),
   );
 
   if (!estPret) {
     return (
       <View style={styles.centre}>
-        <ActivityIndicator size="large" color="#0000ff" />
-        <Text>Initialisation de la base de données...</Text>
+        <ActivityIndicator size="large" color={AppTheme.colors.primary} />
+        <Text style={styles.loadingText}>
+          Initialisation de la base de données...
+        </Text>
       </View>
     );
   }
@@ -104,51 +83,17 @@ export default function PageAccueil() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-    <Header/>
-      {/* <View>
-        <Text>Filtre</Text>
-        <View>
-          <View>
-            <Text>Mois</Text>
-            <Picker
-              selectedValue={Util.getMonth(moisCourant)}
-              onValueChange={(itemValue)=>setMois(itemValue)}
-            >
-              {Util.months.map((m)=>(
-                <Picker.Item
-                  key={m.valeur}
-                  label={m.label}
-                  value={m.valeur}
-                />
-              ))}
-            </Picker>
-          </View>
-          <View>
-            <Text>Année</Text>
-            <Picker
-              selectedValue={anneeCourante}
-              onValueChange={(itemValue)=>setAnnee(itemValue)}
-            >
-              {listAnnee.map((a)=>(
-                <Picker.Item
-                  key={a.key}
-                  label={a.valeur}
-                  value={a.valeur}
-                />
-              ))}
-            </Picker>
-          </View>
-        </View>
-      </View> */}
+      <Header />
       <FlatList
+        contentContainerStyle={styles.listContent}
         ListHeaderComponent={() => (
           <View style={styles.header}>
             <View style={styles.cardStat}>
-              <Text style={styles.title}>Total montant des depenses</Text>
+              <Text style={styles.title}>Total du mois</Text>
               <Text style={styles.valeur}>{Util.formatNumber(total)} Ar</Text>
             </View>
-            <View style={styles.cardStat}>
-              <Text style={styles.title}>Total des depenses effectués</Text>
+            <View style={styles.cardStatSecondary}>
+              <Text style={styles.title}>Transactions</Text>
               <Text style={styles.valeur}>{depenses.length}</Text>
             </View>
           </View>
@@ -175,77 +120,75 @@ export default function PageAccueil() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F7FAFC",
+    backgroundColor: AppTheme.colors.background,
+  },
+  listContent: {
+    paddingBottom: 24,
   },
   header: {
-    display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
     paddingVertical: 16,
     paddingHorizontal: 8,
-    borderRadius: 8,
+    gap: 8,
   },
   title: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: "700",
-    color: "#1A202C",
+    color: AppTheme.colors.textMuted,
     marginBottom: 5,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: "#718096",
-    marginTop: 4,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   valeur: {
     fontSize: 20,
-    color: "#2f62a0",
+    color: AppTheme.colors.primary,
     fontWeight: "bold",
   },
   centre: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: AppTheme.colors.background,
+  },
+  loadingText: {
+    color: AppTheme.colors.textMuted,
+    marginTop: 8,
   },
   emptyComponent: {
-    display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#F7FAFC",
-  },
-  card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-    display: "flex",
-    flexDirection: "row",
+    paddingVertical: 24,
+    backgroundColor: AppTheme.colors.background,
   },
   label: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#A0AEC0",
+    color: AppTheme.colors.textMuted,
     textTransform: "uppercase",
     letterSpacing: 0.8,
     marginBottom: 8,
   },
   cardStat: {
-    backgroundColor: "#FFF",
-    padding: 8,
-    borderRadius: 8,
-    shadowColor: "#000",
+    flex: 1,
+    backgroundColor: AppTheme.colors.surface,
+    padding: 12,
+    borderRadius: AppTheme.radius.md,
+    shadowColor: AppTheme.colors.shadow,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 2,
-    height: 72,
-    display: "flex",
-    flexDirection: "column",
-    gap: 8
-  }
+  },
+  cardStatSecondary: {
+    flex: 1,
+    backgroundColor: AppTheme.colors.primarySoft,
+    padding: 12,
+    borderRadius: AppTheme.radius.md,
+    shadowColor: AppTheme.colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
+  },
 });

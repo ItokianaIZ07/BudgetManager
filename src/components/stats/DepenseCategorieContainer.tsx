@@ -1,11 +1,10 @@
-import { View, StatusBar, StyleSheet, Text, ScrollView, ProgressBarAndroidComponent} from "react-native";
 import { DepenseRepository } from "@/app/repositories/DepenseRepository";
-import { useState } from "react";
-import { useFocusEffect } from "expo-router";
 import { Util } from "@/app/utils/util";
+import { AppTheme } from "@/constants/theme";
+import { useFocusEffect } from "expo-router";
+import { useState } from "react";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import ProgressBar from "./ProgressBar";
-import { LimiteDepenseRepository } from "@/app/repositories/LimiteDepenseRepository";
-import { LimiteDepense } from "@/models/LimiteDepense";
 
 interface DepenseCategorieProps {
   mois: string;
@@ -26,96 +25,107 @@ export default function DepenseCategorieContainer({
     setListDepense(depenses !== undefined ? depenses : []);
   };
 
-  const floatFormat = (nombre: number)=>{
+  const floatFormat = (nombre: number) => {
     return nombre.toFixed(2);
-  }
+  };
 
   useFocusEffect(() => {
     getListDepensePerCategory();
   });
 
-  if(listDepense.length == 0){
+  if (listDepense.length == 0) {
     return (
       <View style={styles.container}>
-        <Text style={styles.emptyLabel}>Aucune dépense enregistré pour le moment</Text>
+        <Text style={styles.emptyLabel}>
+          Aucune dépense enregistré pour le moment
+        </Text>
       </View>
-    )
+    );
   }
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Catégories</Text>
-      <ScrollView>
-        {listDepense.map((item)=>(
-            <View style={styles.card} key={item.id}>
-                <View style={styles.info}>
-                    <View style={styles.labelSection}>
-                      <Text style={styles.categorieLabel}>{item.categorie}</Text>
-                      <Text style={styles.limitLabel}>Limité à {Util.formatNumber(item.limite)} Ar</Text>
-                    </View>
-                    <View style={styles.labelSection}>
-                      <Text style={styles.montantLabel}>{item.total} Ar</Text>
-                      <Text style={styles.limitLabel}>{floatFormat((item.total/item.limite)*100)}% utilisé</Text>
-                    </View>
-                </View>
-                <View style={styles.progressBarContainer}>
-                  <ProgressBar progress={item.total/item.limite} color="#4a9d30" />
-                </View>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {listDepense.map((item) => (
+          <View style={styles.card} key={item.id}>
+            <View style={styles.info}>
+              <View style={styles.labelSection}>
+                <Text style={styles.categorieLabel}>{item.categorie}</Text>
+                <Text style={styles.limitLabel}>
+                  Limité à {Util.formatNumber(item.limite)} Ar
+                </Text>
+              </View>
+              <View style={styles.labelSection}>
+                <Text style={styles.montantLabel}>
+                  {Util.formatNumber(item.total)} Ar
+                </Text>
+                <Text style={styles.limitLabel}>
+                  {floatFormat((item.total / item.limite) * 100)}% utilisé
+                </Text>
+              </View>
             </View>
+            <View style={styles.progressBarContainer}>
+              <ProgressBar
+                progress={item.total / item.limite}
+                color={AppTheme.colors.success}
+              />
+            </View>
+          </View>
         ))}
       </ScrollView>
     </View>
   );
 }
 const styles = StyleSheet.create({
-  container:{
-    padding: 8
+  container: {
+    padding: 8,
   },
-  title:{
-    fontSize: 16
+  title: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: AppTheme.colors.text,
+    marginBottom: 4,
   },
   card: {
-    backgroundColor: "#FFF",
-    display: "flex",
+    backgroundColor: AppTheme.colors.surface,
     flexDirection: "column",
-    borderRadius: 8,
-    padding: 8,
+    borderRadius: AppTheme.radius.md,
+    padding: 12,
     marginVertical: 8,
-    shadowColor: "#000",
+    shadowColor: AppTheme.colors.shadow,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 2,
   },
   info: {
-    display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center"
+    alignItems: "center",
   },
-  labelSection:{
-    display: "flex",
+  labelSection: {
     flexDirection: "column",
-    gap: 4
+    gap: 4,
   },
-  categorieLabel:{
+  categorieLabel: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#258f45"
+    color: AppTheme.colors.secondary,
   },
   limitLabel: {
-    color: "#16689ea7",
-    fontSize: 12
+    color: AppTheme.colors.textMuted,
+    fontSize: 12,
   },
   montantLabel: {
     fontSize: 18,
-    color: "#16689e",
-    fontWeight: "bold"
+    color: AppTheme.colors.primary,
+    fontWeight: "bold",
   },
   progressBarContainer: {
-    marginVertical: 8
+    marginVertical: 8,
   },
-  emptyLabel:{
-    color:"#607b8c"
-  }
+  emptyLabel: {
+    color: AppTheme.colors.textMuted,
+  },
 });

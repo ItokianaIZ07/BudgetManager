@@ -1,37 +1,63 @@
-import { View, StyleSheet, Text, Image } from "react-native"
+import { AppTheme } from "@/constants/theme";
+import { Image, StyleSheet, Text, View } from "react-native";
 
-export default function Header(){
-    return (
-        <View style={styles.headerApp}>
-        <Text style={styles.headerTitle}>Suivie de Budget</Text>
+export default function Header() {
+  return (
+    <View style={styles.headerApp}>
+      <View style={styles.headerTextBlock}>
+        <Text style={styles.headerTitle}>Suivi de Budget</Text>
+        <Text style={styles.headerSubtitle}>Gère tes dépenses en douceur</Text>
+      </View>
+      <View style={styles.logoWrapper}>
         <Image
           source={require("@/assets/images/tabIcons/currency-manat.png")}
-          style= {styles.logo}
+          style={styles.logo}
         />
       </View>
-    )
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-    headerApp: {
-    display: "flex",
+  headerApp: {
     flexDirection: "row",
     justifyContent: "space-between",
-    padding: 16,
-    borderRadius: 8,
-    backgroundColor: "#e1e1e1",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: AppTheme.radius.lg,
+    backgroundColor: AppTheme.colors.surface,
     marginTop: 10,
-    alignItems: "center"
+    marginHorizontal: 8,
+    shadowColor: AppTheme.colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  logo: {
-    width: 32,
-    height: 32,
-    backgroundColor: "#16689e84",
-    borderRadius: 50
+  headerTextBlock: {
+    flex: 1,
   },
   headerTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#16689e"
+    fontSize: 17,
+    fontWeight: "700",
+    color: AppTheme.colors.text,
+  },
+  headerSubtitle: {
+    fontSize: 12,
+    color: AppTheme.colors.textMuted,
+    marginTop: 2,
+  },
+  logoWrapper: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: AppTheme.colors.primarySoft,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  logo: {
+    width: 24,
+    height: 24,
   },
 });

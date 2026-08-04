@@ -1,17 +1,17 @@
 import { CategorieRepository } from "@/app/repositories/CategorieRepository";
 import { LimiteDepenseRepository } from "@/app/repositories/LimiteDepenseRepository";
+import { AppTheme } from "@/constants/theme";
 import { Categorie } from "@/models/Categorie";
 import { LimiteDepense } from "@/models/LimiteDepense";
-import { useFocusEffect } from "expo-router";
 import { useState } from "react";
 import {
-  Modal,
-  View,
-  Text,
-  StyleSheet,
-  Button,
-  TextInput,
   Alert,
+  Modal,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 interface FormModalProps {
@@ -21,7 +21,7 @@ interface FormModalProps {
   setMode: (mode: string) => void;
   categorie?: Categorie;
   setCategorie: (categorie?: Categorie) => void;
-  onRefresh?: ()=>void
+  onRefresh?: () => void;
 }
 
 export default function FormModal({
@@ -31,7 +31,7 @@ export default function FormModal({
   setMode,
   categorie,
   setCategorie,
-  onRefresh
+  onRefresh,
 }: FormModalProps) {
   const [nom, setNom] = useState<string>("");
   const [limite, setLimite] = useState<string>("");
@@ -40,8 +40,8 @@ export default function FormModal({
     const idInserted = await CategorieRepository.sauvegarderCategorie(category);
     const limiteDepense: LimiteDepense = {
       idCategorie: idInserted,
-      limite: category.limite!
-    }
+      limite: category.limite!,
+    };
     await LimiteDepenseRepository.sauvegarderLimite(limiteDepense);
   };
 
@@ -59,21 +59,27 @@ export default function FormModal({
           Alert.alert("Veuillez entrez un nom pour la catégorie");
           return;
         }
-        if(limite.trim() === ""){
-          Alert.alert("Veuillez entrez une limite de dépense pour la catégorie");
+        if (limite.trim() === "") {
+          Alert.alert(
+            "Veuillez entrez une limite de dépense pour la catégorie",
+          );
           return;
         }
-        category = { libelle: nom, limite: parseFloat(limite)};
+        category = { libelle: nom, limite: parseFloat(limite) };
         saveCategory(category);
         message = "Categorie sauvegardé avec succès";
       } else if (mode == "edit") {
-        if(nom.trim() === ""){
+        if (nom.trim() === "") {
           setNom(categorie!.libelle!);
         }
-        if(limite.trim() === ""){
+        if (limite.trim() === "") {
           setLimite(categorie!.limite!.toString());
         }
-        category = { id: categorie?.id, libelle: nom, limite: parseFloat(limite) };
+        category = {
+          id: categorie?.id,
+          libelle: nom,
+          limite: parseFloat(limite),
+        };
         updateCategory(category);
         message = "La categorie a été mis à jour";
       }
@@ -99,25 +105,38 @@ export default function FormModal({
     <Modal visible={visible} animationType="slide" transparent={true}>
       <View style={styles.form}>
         <View style={styles.formContent}>
-          <Text>
+          <Text style={styles.title}>
             {mode == "add" ? "Nouvelle catégorie" : "Modifier la catégorie"}
           </Text>
+          <Text style={styles.label}>Nom</Text>
           <TextInput
             style={styles.input}
-            placeholder={mode === "add"? "Nom": categorie!.libelle}
+            placeholder={mode === "add" ? "Nom" : categorie!.libelle}
+            placeholderTextColor={AppTheme.colors.textMuted}
             value={nom}
             onChangeText={setNom}
           />
+          <Text style={styles.label}>Limite de dépense</Text>
           <TextInput
             style={styles.input}
             inputMode="numeric"
-            placeholder={mode === "add"? "100 000 Ar": categorie!.limite?.toString()}
+            placeholder={
+              mode === "add" ? "100 000 Ar" : categorie!.limite?.toString()
+            }
+            placeholderTextColor={AppTheme.colors.textMuted}
             value={limite}
             onChangeText={setLimite}
           />
           <View style={styles.buttonContainer}>
-            <Button title="Enregistrer" onPress={save} />
-            <Button onPress={hideModal} title="Annuler" />
+            <TouchableOpacity style={styles.primaryButton} onPress={save}>
+              <Text style={styles.primaryButtonText}>Enregistrer</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={hideModal}
+            >
+              <Text style={styles.secondaryButtonText}>Annuler</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -129,26 +148,61 @@ const styles = StyleSheet.create({
   form: {
     flex: 1,
     justifyContent: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    backgroundColor: "rgba(15, 23, 42, 0.45)",
   },
   formContent: {
     margin: 20,
     padding: 20,
-    borderRadius: 15,
-    backgroundColor: "white",
-    display: "flex",
+    borderRadius: AppTheme.radius.lg,
+    backgroundColor: AppTheme.colors.surface,
     flexDirection: "column",
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: AppTheme.colors.text,
+    marginBottom: 12,
+  },
+  label: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: AppTheme.colors.textMuted,
+    marginTop: 8,
+    marginBottom: 4,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   buttonContainer: {
-    display: "flex",
     flexDirection: "column",
-    gap: 16,
-    marginTop: 8,
+    gap: 10,
+    marginTop: 16,
   },
   input: {
-    backgroundColor: "#bdbdbd5a",
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    marginVertical: 4
+    backgroundColor: AppTheme.colors.surfaceMuted,
+    borderRadius: AppTheme.radius.md,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginVertical: 4,
+    color: AppTheme.colors.text,
+  },
+  primaryButton: {
+    backgroundColor: AppTheme.colors.primary,
+    paddingVertical: 12,
+    borderRadius: AppTheme.radius.md,
+    alignItems: "center",
+  },
+  primaryButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "700",
+  },
+  secondaryButton: {
+    backgroundColor: AppTheme.colors.surfaceMuted,
+    paddingVertical: 12,
+    borderRadius: AppTheme.radius.md,
+    alignItems: "center",
+  },
+  secondaryButtonText: {
+    color: AppTheme.colors.text,
+    fontWeight: "600",
   },
 });

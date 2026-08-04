@@ -1,5 +1,5 @@
 import { Depense } from "@/models/Depense";
-import { TouchableOpacity, View, Image, StyleSheet, Alert } from "react-native";
+import { Alert, Image, StyleSheet, TouchableOpacity, View } from "react-native";
 
 interface DeleteButtonProps {
   item: Depense;
@@ -7,7 +7,6 @@ interface DeleteButtonProps {
 }
 
 export default function DeleteButton({ item, onDelete }: DeleteButtonProps) {
-    
   const confirmerSuppression = (id: number) => {
     Alert.alert(
       "Confirmer la suppression",
@@ -37,9 +36,12 @@ export default function DeleteButton({ item, onDelete }: DeleteButtonProps) {
 
 const styles = StyleSheet.create({
   icon: {
-    display: "flex",
     alignItems: "center",
-    width: 32,
+    justifyContent: "center",
+    width: 38,
+    height: 38,
     padding: 8,
+    borderRadius: 999,
+    backgroundColor: "#FEE2E2",
   },
 });

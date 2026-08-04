@@ -1,13 +1,7 @@
-import { Depense } from "@/models/Depense";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Alert,
-  TouchableOpacity,
-  Image,
-} from "react-native";
 import { Util } from "@/app/utils/util";
+import { AppTheme } from "@/constants/theme";
+import { Depense } from "@/models/Depense";
+import { StyleSheet, Text, View } from "react-native";
 import DeleteButton from "./DeleteButton";
 
 interface HistoryCardProps {
@@ -32,37 +26,37 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#1A202C",
+    color: AppTheme.colors.text,
     marginBottom: 5,
   },
   subtitle: {
     fontSize: 14,
-    color: "#718096",
+    color: AppTheme.colors.textMuted,
     marginTop: 4,
   },
   price: {
-    fontSize: 24,
-    color: "#16689e",
+    fontSize: 22,
+    color: AppTheme.colors.primary,
     fontWeight: "bold",
     marginLeft: "auto",
-    marginRight: 8
+    marginRight: 8,
   },
   card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: "#000",
+    backgroundColor: AppTheme.colors.surface,
+    borderRadius: AppTheme.radius.lg,
+    padding: 14,
+    marginBottom: 12,
+    shadowColor: AppTheme.colors.shadow,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 2,
-    display: "flex",
     flexDirection: "row",
     marginHorizontal: 8,
-    alignItems: "center"
+    alignItems: "center",
   },
-  date:{
-    fontSize: 8,
+  date: {
+    fontSize: 11,
+    color: AppTheme.colors.textMuted,
   },
 });

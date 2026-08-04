@@ -1,22 +1,22 @@
+import { CategorieRepository } from "@/app/repositories/CategorieRepository";
+import { DepenseRepository } from "@/app/repositories/DepenseRepository";
+import Header from "@/components/header";
+import { AppTheme } from "@/constants/theme";
+import { Categorie } from "@/models/Categorie";
+import { Depense } from "@/models/Depense";
+import { useFocusEffect } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  StyleSheet,
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  Alert,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { DepenseRepository } from "@/app/repositories/DepenseRepository";
-import { CategorieRepository } from "@/app/repositories/CategorieRepository";
-import { Float } from "react-native/Libraries/Types/CodegenTypes";
-import { Depense } from "@/models/Depense";
-import Header from "@/components/header";
-import { Categorie } from "@/models/Categorie";
-import { useFocusEffect } from "expo-router";
 
 export default function AddExpenseScreen() {
   const [montant, setMontant] = useState<string>("");
@@ -187,7 +187,7 @@ export default function AddExpenseScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F7FAFC",
+    backgroundColor: AppTheme.colors.background,
   },
   scrollContainer: {
     padding: 20,
@@ -198,28 +198,28 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: "700",
-    color: "#1A202C",
+    color: AppTheme.colors.text,
   },
   subtitle: {
     fontSize: 14,
-    color: "#718096",
+    color: AppTheme.colors.textMuted,
     marginTop: 4,
   },
   card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
+    backgroundColor: AppTheme.colors.surface,
+    borderRadius: AppTheme.radius.lg,
     padding: 16,
     marginBottom: 16,
-    shadowColor: "#000",
+    shadowColor: AppTheme.colors.shadow,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 2,
   },
   label: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#A0AEC0",
+    color: AppTheme.colors.textMuted,
     textTransform: "uppercase",
     letterSpacing: 0.8,
     marginBottom: 8,
@@ -232,18 +232,18 @@ const styles = StyleSheet.create({
   amountInput: {
     fontSize: 32,
     fontWeight: "700",
-    color: "#2D3748",
+    color: AppTheme.colors.text,
     flex: 1,
   },
   currencySymbol: {
     fontSize: 24,
     fontWeight: "600",
-    color: "#718096",
+    color: AppTheme.colors.textMuted,
     marginLeft: 8,
   },
   input: {
     fontSize: 16,
-    color: "#2D3748",
+    color: AppTheme.colors.text,
     paddingVertical: 4,
   },
   pillsContainer: {
@@ -255,30 +255,30 @@ const styles = StyleSheet.create({
   pill: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: "#EDF2F7",
+    borderRadius: 999,
+    backgroundColor: AppTheme.colors.surfaceMuted,
   },
   pillActive: {
-    backgroundColor: "#3182CE",
+    backgroundColor: AppTheme.colors.primary,
   },
   pillText: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#4A5568",
+    color: AppTheme.colors.textMuted,
   },
   pillTextActive: {
     color: "#FFFFFF",
     fontWeight: "600",
   },
   submitButton: {
-    backgroundColor: "#3182CE",
-    borderRadius: 14,
+    backgroundColor: AppTheme.colors.primary,
+    borderRadius: AppTheme.radius.md,
     paddingVertical: 16,
     alignItems: "center",
     marginTop: 12,
-    shadowColor: "#3182CE",
+    shadowColor: AppTheme.colors.primary,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.22,
     shadowRadius: 8,
     elevation: 4,
   },
