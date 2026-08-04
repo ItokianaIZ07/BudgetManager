@@ -3,14 +3,14 @@ import { AppTheme } from "@/constants/theme";
 import { initDatabase, initializeData, resetDatabase } from "@/database/sqlite";
 import { router } from "expo-router";
 import {
-    Alert,
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function SettingsScreen() {
@@ -70,6 +70,19 @@ export default function SettingsScreen() {
               <Text style={styles.buttonLabel}>Catégories</Text>
               <Image
                 source={require("@/assets/images/category.png")}
+                style={styles.icon}
+              />
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => router.push("/settings/about" as never)}
+          >
+            <View style={styles.action}>
+              <Text style={styles.buttonLabel}>À propos</Text>
+              <Image
+                source={require("@/assets/images/alert-circle.png")}
                 style={styles.icon}
               />
             </View>
