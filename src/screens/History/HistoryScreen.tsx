@@ -4,10 +4,10 @@ import Header from "@/components/header";
 import HistoryCard from "@/components/history/HistoryCard";
 import SortComponent from "@/components/history/SortComponent";
 import { AppTheme } from "@/constants/theme";
-import { Depense } from "@/models/Depense";
+import { useDepenseStore } from "@/store/depenseStore";
 import { useStatsStore } from "@/store/statsStore";
 import { router, useFocusEffect } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import {
   Button,
   FlatList,
@@ -19,24 +19,24 @@ import {
 } from "react-native";
 
 export default function HistoryScreen() {
-  const [depenses, setDepenses] = useState<Depense[]>([]);
+  const depenses = useDepenseStore((state) => state.depenses);
+  const fetchDepenses = useDepenseStore((state) => state.fetchDepenses);
+  const deleteDepense = useDepenseStore((state) => state.deleteDepense);
   const setDepensesStats = useStatsStore((state) => state.setDepenses);
 
   const { mois, annee } = getCurrentDateParts();
 
   const rechargeDepense = async (id: number) => {
-    setDepenses((depenses) => depenses.filter((item) => item.id !== id));
+    await deleteDepense(id);
     await initialiserDonneeDepense();
   };
 
   async function chargerDepenses() {
-    const donnees = await DepenseRepository.recupererToutes();
-    setDepenses(donnees);
+    await fetchDepenses();
   }
 
   async function supprimerDepense(id: number) {
-    await DepenseRepository.supprimerDepense(id);
-    rechargeDepense(id);
+    await rechargeDepense(id);
   }
 
   const sortById = async (id: number) => {
@@ -45,7 +45,7 @@ export default function HistoryScreen() {
       return;
     }
     const donnees = await DepenseRepository.recupererParCategorie(id);
-    setDepenses(donnees);
+    useDepenseStore.getState().setDepenses(donnees);
   };
 
   const searchByKeyWord = async (keyword: string) => {
@@ -54,8 +54,7 @@ export default function HistoryScreen() {
       return;
     }
     const donnees = await DepenseRepository.rechercherParMotCle(keyword);
-    // const donnees = depenses.filter((d)=>d.description.toLowerCase().startsWith(keyword.toLowerCase()))
-    setDepenses(donnees);
+    useDepenseStore.getState().setDepenses(donnees);
   };
 
   async function initialiserDonneeDepense() {

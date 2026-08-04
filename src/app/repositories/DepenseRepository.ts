@@ -14,64 +14,101 @@ export const DepenseRepository = {
     return resultat.lastInsertRowId;
   },
 
-  recupererToutes: async () : Promise<Depense[]> =>{
+  recupererToutes: async (): Promise<Depense[]> => {
     const requete = "SELECT * FROM depenses ORDER BY date DESC";
     const resultat = await db.getAllAsync<Depense>(requete);
 
     return resultat;
   },
 
-  supprimerDepense: async (id: number) : Promise<void> => {
+  supprimerDepense: async (id: number): Promise<void> => {
     const requete = "DELETE FROM depenses WHERE id = ?";
     await db.runAsync(requete, [id]);
   },
 
-  recupererParCategorie: async(id: number) : Promise<Depense[]> =>{
-    const requete = "SELECT * FROM depenses WHERE categorie_id = ? ORDER BY date DESC";
-    const resultat = await db.getAllAsync<Depense>(requete, [id])
+  mettreAJour: async (depense: Depense): Promise<void> => {
+    if (!depense.id) {
+      throw new Error(
+        "Impossible de mettre à jour une dépense sans identifiant",
+      );
+    }
+
+    const requete = `
+      UPDATE depenses
+      SET montant = ?, description = ?, date = ?, categorie_id = ?, mode_paiement = ?, mis_a_jour_le = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `;
+
+    await db.runAsync(requete, [
+      depense.montant,
+      depense.description,
+      depense.date,
+      depense.categorie_id,
+      depense.mode_paiement,
+      depense.id,
+    ]);
+  },
+
+  recupererParCategorie: async (id: number): Promise<Depense[]> => {
+    const requete =
+      "SELECT * FROM depenses WHERE categorie_id = ? ORDER BY date DESC";
+    const resultat = await db.getAllAsync<Depense>(requete, [id]);
 
     return resultat;
   },
 
-  rechercherParMotCle : async(keyword: string): Promise<Depense[]> =>{
+  rechercherParMotCle: async (keyword: string): Promise<Depense[]> => {
     const requete = "SELECT * FROM depenses WHERE description LIKE ?";
     const stmt = await db.prepareAsync(requete);
-    const resultat = await stmt.executeAsync<Depense>([`${keyword}%`])
-    try{
+    const resultat = await stmt.executeAsync<Depense>([`${keyword}%`]);
+    try {
       return await resultat.getAllAsync();
-    }
-    finally{
+    } finally {
       stmt.finalizeAsync();
     }
   },
 
-  supprimerTout : async(): Promise<void> =>{
+  supprimerTout: async (): Promise<void> => {
     const requete = "DELETE FROM depenses";
     await db.runAsync(requete);
   },
 
-  recupererSommeMontantParCategorie: async(mois: string, annee: string) =>{
-    const requete = "SELECT c.id, c.libelle as categorie, SUM(d.montant) as total, l.limite FROM depenses d JOIN categorie c ON c.id = d.categorie_id LEFT JOIN limite_depense l ON c.id = l.categorie_id WHERE d.date >= ? AND d.date <= date GROUP BY c.id ORDER BY total ASC";
+  recupererSommeMontantParCategorie: async (mois: string, annee: string) => {
+    const requete =
+      "SELECT c.id, c.libelle as categorie, SUM(d.montant) as total, l.limite FROM depenses d JOIN categorie c ON c.id = d.categorie_id LEFT JOIN limite_depense l ON c.id = l.categorie_id WHERE d.date >= ? AND d.date <= date GROUP BY c.id ORDER BY total ASC";
     const stmt = await db.prepareAsync(requete);
-    const resultat = await stmt.executeAsync<any>([`01-${mois}-${annee}` ,`31-${mois}-${annee}`]);
-    try{
+    const resultat = await stmt.executeAsync<any>([
+      `01-${mois}-${annee}`,
+      `31-${mois}-${annee}`,
+    ]);
+    try {
       return await resultat.getAllAsync();
-    }catch(error){
-      console.error("Une erreur est survenue lors de la recupération des dépenses par catégorie", error);
-    }finally{
+    } catch (error) {
+      console.error(
+        "Une erreur est survenue lors de la recupération des dépenses par catégorie",
+        error,
+      );
+    } finally {
       await stmt.finalizeAsync();
     }
   },
 
-  recupererSommeParMoisAnnee: async(mois: string, annee:string): Promise<any|null> =>{
-    const requete = "SELECT SUM(montant) AS total FROM depenses WHERE date >= ? AND date <= ?";
+  recupererSommeParMoisAnnee: async (
+    mois: string,
+    annee: string,
+  ): Promise<any | null> => {
+    const requete =
+      "SELECT SUM(montant) AS total FROM depenses WHERE date >= ? AND date <= ?";
     const stmt = await db.prepareAsync(requete);
-    const resultat = await stmt.executeAsync<any>([`01-${mois}-${annee}` ,`31-${mois}-${annee}`])
-    try{
+    const resultat = await stmt.executeAsync<any>([
+      `01-${mois}-${annee}`,
+      `31-${mois}-${annee}`,
+    ]);
+    try {
       return await resultat.getFirstAsync();
-    }catch(error){
+    } catch (error) {
       console.error(error);
-    }finally{
+    } finally {
       await stmt.finalizeAsync();
     }
   },

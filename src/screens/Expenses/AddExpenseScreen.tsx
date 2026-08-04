@@ -5,19 +5,20 @@ import Header from "@/components/header";
 import { AppTheme } from "@/constants/theme";
 import { Categorie } from "@/models/Categorie";
 import { Depense } from "@/models/Depense";
+import { useDepenseStore } from "@/store/depenseStore";
 import { useStatsStore } from "@/store/statsStore";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function AddExpenseScreen() {
@@ -70,7 +71,7 @@ export default function AddExpenseScreen() {
       date: new Date().toISOString().split("T")[0],
     };
 
-    await DepenseRepository.ajouter(depense);
+    await useDepenseStore.getState().createDepense(depense);
     const depenses = await DepenseRepository.recupererSommeMontantParCategorie(
       mois,
       annee,

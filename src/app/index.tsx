@@ -1,8 +1,8 @@
 import Header from "@/components/header";
 import HistoryCard from "@/components/history/HistoryCard";
 import { AppTheme } from "@/constants/theme";
-import { initDatabase, initializeData, isInitalized } from "@/database/sqlite";
-import { Depense } from "@/models/Depense";
+import { initializeApplication } from "@/database/databaseInit";
+import { useDepenseStore } from "@/store/depenseStore";
 import { useStatsStore } from "@/store/statsStore";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -21,10 +21,12 @@ import { getCurrentDateParts, Util } from "./utils/util";
 
 export default function PageAccueil() {
   const [estPret, setEstPret] = useState<boolean>(false);
-  const [depenses, setDepenses] = useState<Depense[]>([]);
 
   const { mois, annee } = getCurrentDateParts();
 
+  const depenses = useDepenseStore((state) => state.depenses);
+  const fetchDepenses = useDepenseStore((state) => state.fetchDepenses);
+  const deleteDepense = useDepenseStore((state) => state.deleteDepense);
   const setDepensesStats = useStatsStore((state) => state.setDepenses);
 
   const total = useMemo(() => {
@@ -32,18 +34,16 @@ export default function PageAccueil() {
   }, [depenses]);
 
   const rechargeDepense = async (id: number) => {
-    setDepenses((depenses) => depenses.filter((item) => item.id !== id));
+    await deleteDepense(id);
     await initialiserDonneeDepense();
   };
 
   async function chargerDepenses() {
-    const donnees = await DepenseRepository.recupererToutes();
-    setDepenses(donnees);
+    await fetchDepenses();
   }
 
   async function supprimerDepense(id: number) {
-    await DepenseRepository.supprimerDepense(id);
-    rechargeDepense(id);
+    await rechargeDepense(id);
   }
 
   async function initialiserDonneeDepense() {
@@ -56,18 +56,12 @@ export default function PageAccueil() {
 
   useEffect(() => {
     const preparerApplication = async () => {
-      try {
-        await initDatabase();
-        if (isInitalized() == "false") {
-          await initializeData();
-        }
+      await initializeApplication(async () => {
         await initialiserDonneeDepense();
-      } catch (erreur) {
-        console.error("Erreur au chargement :", erreur);
-      } finally {
-        setEstPret(true);
-      }
+      });
+      setEstPret(true);
     };
+
     preparerApplication();
   }, []);
 
