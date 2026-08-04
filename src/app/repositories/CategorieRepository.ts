@@ -25,5 +25,12 @@ export const CategorieRepository = {
     mettreAJourCategorie: async (categorie: Categorie)=>{
         const requete = "UPDATE categorie SET libelle = ? WHERE id = ?";
         await db.runAsync(requete, [categorie.libelle, categorie.id!]);
+    },
+
+    recupererParId: async (id: number) : Promise<Categorie|null> =>{
+        const requete = "SELECT * FROM categorie WHERE id = ?";
+        const response = await db.getFirstAsync<Categorie>(requete, [id]);
+
+        return response;
     }
 }

@@ -3,6 +3,7 @@ import { AppTheme } from "@/constants/theme";
 import { Depense } from "@/models/Depense";
 import { StyleSheet, Text, View } from "react-native";
 import DeleteButton from "./DeleteButton";
+import { CategorieRepository } from "@/app/repositories/CategorieRepository";
 
 interface HistoryCardProps {
   item: Depense;
@@ -10,11 +11,16 @@ interface HistoryCardProps {
 }
 
 export default function HistoryCard({ item, onDelete }: HistoryCardProps) {
+  const getCategorie = async (id: number)=>{
+    const categorie = await CategorieRepository.recupererParId(id);
+    return categorie?.libelle;
+  }
+
   return (
     <View style={styles.card}>
       <View>
         <Text style={styles.title}>{item.description}</Text>
-        <Text style={styles.date}>{Util.formatDate(item.date)}</Text>
+        <Text style={styles.date}>{getCategorie(item.id!)} . {Util.formatDate(item.date)}</Text>
       </View>
       <Text style={styles.price}>{Util.formatNumber(item.montant)} Ar</Text>
       <DeleteButton item={item} onDelete={onDelete} />
