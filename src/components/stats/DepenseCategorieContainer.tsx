@@ -2,36 +2,26 @@ import { DepenseRepository } from "@/app/repositories/DepenseRepository";
 import { Util } from "@/app/utils/util";
 import { AppTheme } from "@/constants/theme";
 import { useFocusEffect } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import ProgressBar from "./ProgressBar";
 
 interface DepenseCategorieProps {
   mois: string;
   annee: string;
+  listDepense: any[];
 }
 
 export default function DepenseCategorieContainer({
   mois,
   annee,
+  listDepense,
 }: DepenseCategorieProps) {
-  const [listDepense, setListDepense] = useState<any[]>([]);
-
-  const getListDepensePerCategory = async () => {
-    const depenses = await DepenseRepository.recupererSommeMontantParCategorie(
-      mois,
-      annee,
-    );
-    setListDepense(depenses !== undefined ? depenses : []);
-  };
+  const [message, setMessage] = useState<string[]>([]);
 
   const floatFormat = (nombre: number) => {
     return nombre.toFixed(2);
   };
-
-  useFocusEffect(() => {
-    getListDepensePerCategory();
-  });
 
   if (listDepense.length == 0) {
     return (
@@ -44,37 +34,37 @@ export default function DepenseCategorieContainer({
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.scrollContainer}
+    >
       <Text style={styles.title}>Catégories</Text>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {listDepense.map((item) => (
-          <View style={styles.card} key={item.id}>
-            <View style={styles.info}>
-              <View style={styles.labelSection}>
-                <Text style={styles.categorieLabel}>{item.categorie}</Text>
-                <Text style={styles.limitLabel}>
-                  Limité à {Util.formatNumber(item.limite)} Ar
-                </Text>
-              </View>
-              <View style={styles.labelSection}>
-                <Text style={styles.montantLabel}>
-                  {Util.formatNumber(item.total)} Ar
-                </Text>
-                <Text style={styles.limitLabel}>
-                  {floatFormat((item.total / item.limite) * 100)}% utilisé
-                </Text>
-              </View>
+      {listDepense.map((item) => (
+        <View style={styles.card} key={item.id}>
+          <View style={styles.info}>
+            <View style={styles.labelSection}>
+              <Text style={styles.categorieLabel}>{item.categorie}</Text>
+              <Text style={styles.limitLabel}>
+                Limité à {Util.formatNumber(item.limite)} Ar
+              </Text>
             </View>
-            <View style={styles.progressBarContainer}>
-              <ProgressBar
-                progress={item.total / item.limite}
-                color={AppTheme.colors.success}
-              />
+            <View style={styles.labelSection}>
+              <Text style={styles.montantLabel}>
+                {Util.formatNumber(item.total)} Ar
+              </Text>
+              <Text style={styles.limitLabel}>
+                {floatFormat((item.total / item.limite) * 100)}% utilisé
+              </Text>
             </View>
           </View>
-        ))}
-      </ScrollView>
-    </View>
+          <View style={styles.progressBarContainer}>
+            <ProgressBar
+              progress={item.total / item.limite}
+            />
+          </View>
+        </View>
+      ))}
+    </ScrollView>
   );
 }
 const styles = StyleSheet.create({
@@ -127,5 +117,10 @@ const styles = StyleSheet.create({
   },
   emptyLabel: {
     color: AppTheme.colors.textMuted,
+  },
+  scrollContainer: {
+    // flex: 1,
+    backgroundColor: AppTheme.colors.background,
+    padding: 8,
   },
 });

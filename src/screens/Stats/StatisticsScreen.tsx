@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import Header from "@/components/header";
 import DepenseCategorieContainer from "@/components/stats/DepenseCategorieContainer";
+import NotifComponent from "@/components/stats/NotifComponent";
 import { useState } from "react";
 import { useFocusEffect } from "expo-router";
 import { DepenseRepository } from "@/app/repositories/DepenseRepository";
@@ -17,6 +18,8 @@ import { getMonth, Util } from "@/app/utils/util";
 
 export default function StatisticsScreen() {
   const [depenseMoisActuelle, setDepenseMoisActuelle] = useState<number>(0);
+  const [listDepense, setListDepense] = useState<any[]>([]);
+
   const dateActuelle = new Date().toISOString().split("T")[0];
   const mois = dateActuelle.split("-")[1];
   const annee = dateActuelle.split("-")[0];
@@ -26,8 +29,17 @@ export default function StatisticsScreen() {
     setDepenseMoisActuelle(montant !== null ? montant.total : 0);
   };
 
+  const getListDepensePerCategory = async () => {
+    const depenses = await DepenseRepository.recupererSommeMontantParCategorie(
+      mois,
+      annee,
+    );
+    setListDepense(depenses !== undefined ? depenses : []);
+  };
+
   useFocusEffect(() => {
     getDepenseDuMois();
+    getListDepensePerCategory();
   });
 
   return (
@@ -36,10 +48,11 @@ export default function StatisticsScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <Header />
+      <NotifComponent listDepense={listDepense} />
       <View style={styles.depenseContainer}>
         <View style={styles.depenseLabelContainer}>
           <Text style={styles.depenseLabel}>
-            Dépense de ce mois : {getMonth(mois)}
+            Dépense de ce mois : <Text style={{fontWeight: "bold"}}>{getMonth(mois)}</Text>
           </Text>
           <Text style={[styles.depenseLabel, styles.depenseValue]}>
             {Util.formatNumber(depenseMoisActuelle)} Ar
@@ -52,7 +65,7 @@ export default function StatisticsScreen() {
           />
         </View>
       </View>
-      <DepenseCategorieContainer mois={mois} annee={annee} />
+      <DepenseCategorieContainer mois={mois} annee={annee} listDepense={listDepense}/>
     </KeyboardAvoidingView>
   );
 }
