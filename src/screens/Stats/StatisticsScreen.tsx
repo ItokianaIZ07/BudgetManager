@@ -47,8 +47,7 @@ export default function StatisticsScreen() {
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <Header />
-      <NotifComponent listDepense={listDepense} />
+      {/* <NotifComponent listDepense={listDepense} /> */}
       <View style={styles.depenseContainer}>
         <View style={styles.depenseLabelContainer}>
           <Text style={styles.depenseLabel}>
