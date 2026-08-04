@@ -1,26 +1,32 @@
 import { DepenseRepository } from "@/app/repositories/DepenseRepository";
+import { getCurrentDateParts } from "@/app/utils/util";
 import Header from "@/components/header";
 import HistoryCard from "@/components/history/HistoryCard";
 import SortComponent from "@/components/history/SortComponent";
 import { AppTheme } from "@/constants/theme";
 import { Depense } from "@/models/Depense";
+import { useStatsStore } from "@/store/statsStore";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import {
-    Button,
-    FlatList,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    Text,
-    View,
+  Button,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 
 export default function HistoryScreen() {
   const [depenses, setDepenses] = useState<Depense[]>([]);
+  const setDepensesStats = useStatsStore((state) => state.setDepenses);
 
-  const rechargeDepense = (id: number) => {
+  const { mois, annee } = getCurrentDateParts();
+
+  const rechargeDepense = async (id: number) => {
     setDepenses((depenses) => depenses.filter((item) => item.id !== id));
+    await initialiserDonneeDepense();
   };
 
   async function chargerDepenses() {
@@ -52,9 +58,19 @@ export default function HistoryScreen() {
     setDepenses(donnees);
   };
 
-  useFocusEffect(useCallback(() => {
-    sortById(-1);
-  }, []));
+  async function initialiserDonneeDepense() {
+    const data = await DepenseRepository.recupererSommeMontantParCategorie(
+      mois,
+      annee,
+    );
+    setDepensesStats(data !== undefined ? data : []);
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      sortById(-1);
+    }, []),
+  );
 
   return (
     <KeyboardAvoidingView

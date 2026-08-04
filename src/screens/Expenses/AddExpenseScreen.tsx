@@ -1,5 +1,6 @@
 import { CategorieRepository } from "@/app/repositories/CategorieRepository";
 import { DepenseRepository } from "@/app/repositories/DepenseRepository";
+import { getCurrentDateParts } from "@/app/utils/util";
 import Header from "@/components/header";
 import { AppTheme } from "@/constants/theme";
 import { Categorie } from "@/models/Categorie";
@@ -27,10 +28,8 @@ export default function AddExpenseScreen() {
   const [listModePaiement, setListModePaiement] = useState<string[]>([]);
   const [categories, setCategories] = useState<Categorie[]>([]);
   const regex = /^\d+$/;
-  const setStatDepense = useStatsStore((state)=>state.setDepenses);
-  const date = new Date().toISOString().split("T")[0];
-  const mois = date.split("-")[1];
-  const annee = date.split("-")[0];
+  const setStatDepense = useStatsStore((state) => state.setDepenses);
+  const { mois, annee } = getCurrentDateParts();
 
   function isValid(): boolean {
     try {
@@ -72,19 +71,25 @@ export default function AddExpenseScreen() {
     };
 
     await DepenseRepository.ajouter(depense);
-    const depenses = await DepenseRepository.recupererSommeMontantParCategorie(mois, annee);
-    setStatDepense(depenses!== undefined ? depenses: []);
+    const depenses = await DepenseRepository.recupererSommeMontantParCategorie(
+      mois,
+      annee,
+    );
+    setStatDepense(depenses !== undefined ? depenses : []);
     Alert.alert("Votre dépense a bien été sauvegarder");
     resetChamp();
-  };[]
+  };
+  [];
 
   useEffect(() => {
     setListModePaiement(["Espèce", "Carte", "Virement"]);
   }, []);
 
-  useFocusEffect(useCallback(() => {
-    setCategories(CategorieRepository.recupererTous());
-  }, []));
+  useFocusEffect(
+    useCallback(() => {
+      setCategories(CategorieRepository.recupererTous());
+    }, []),
+  );
 
   return (
     <KeyboardAvoidingView

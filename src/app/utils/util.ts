@@ -1,4 +1,3 @@
-import { CategorieRepository } from "../repositories/CategorieRepository";
 
 export const months = [
   { valeur: "01", label: "Jan" },
@@ -19,10 +18,20 @@ export const getMonth = (mois: string) => {
   return months.find((m) => m.valeur == mois)!.label;
 };
 
+export const getCurrentDateParts = () => {
+  const date = new Date().toISOString().split("T")[0];
+
+  return {
+    date,
+    mois: date.split("-")[1],
+    annee: date.split("-")[0],
+  };
+};
+
 export const Util = {
-  formatNumber: (prix: number) : string => {
-    if(prix == null){
-      return "0"
+  formatNumber: (prix: number): string => {
+    if (prix == null) {
+      return "0";
     }
     return prix.toLocaleString("fr-FR", {
       minimumFractionDigits: 0,

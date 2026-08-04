@@ -3,6 +3,7 @@ import HistoryCard from "@/components/history/HistoryCard";
 import { AppTheme } from "@/constants/theme";
 import { initDatabase, initializeData, isInitalized } from "@/database/sqlite";
 import { Depense } from "@/models/Depense";
+import { useStatsStore } from "@/store/statsStore";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -16,21 +17,13 @@ import {
   View,
 } from "react-native";
 import { DepenseRepository } from "./repositories/DepenseRepository";
-import { Util } from "./utils/util";
-import { useStatsStore } from "@/store/statsStore";
+import { getCurrentDateParts, Util } from "./utils/util";
 
 export default function PageAccueil() {
   const [estPret, setEstPret] = useState<boolean>(false);
   const [depenses, setDepenses] = useState<Depense[]>([]);
 
-  const dateActuelle = new Date();
-
-  const moisCourant = String(dateActuelle.getMonth() + 1).padStart(2, "0");
-  const anneeCourante = String(dateActuelle.getFullYear());
-
-  const date = new Date().toISOString().split("T")[0];
-  const mois = date.split("-")[1];
-  const annee = date.split("-")[0];
+  const { mois, annee } = getCurrentDateParts();
 
   const setDepensesStats = useStatsStore((state) => state.setDepenses);
 
@@ -58,7 +51,7 @@ export default function PageAccueil() {
       mois,
       annee,
     );
-    setDepensesStats(data !== undefined ? data: []);
+    setDepensesStats(data !== undefined ? data : []);
   }
 
   useEffect(() => {
