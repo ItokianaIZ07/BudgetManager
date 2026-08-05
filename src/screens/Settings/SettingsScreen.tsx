@@ -1,6 +1,10 @@
-import { DepenseRepository } from "@/app/repositories/DepenseRepository";
+import { getCurrentDateParts } from "@/app/utils/util";
 import { AppTheme } from "@/constants/theme";
 import { initDatabase, initializeData, resetDatabase } from "@/database/sqlite";
+import { useCategorieStore } from "@/store/categorieStore";
+import { useDepenseStore } from "@/store/depenseStore";
+import { useLimiteDepenseStore } from "@/store/limiteDepenseStore";
+import { useStatsStore } from "@/store/statsStore";
 import { router } from "expo-router";
 import {
   Alert,
@@ -12,11 +16,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useStatsStore } from "@/store/statsStore";
 
 export default function SettingsScreen() {
   const anneeActuelle = new Date().getFullYear();
-  const deleteAllStore = useStatsStore((state)=>state.deleteAll)
+  const deleteAllStore = useStatsStore((state) => state.deleteAll);
   const clearData = () => {
     Alert.alert(
       "Confirmer la suppression",
@@ -26,9 +29,9 @@ export default function SettingsScreen() {
         {
           text: "Supprimer",
           style: "destructive",
-          onPress: () => {
-            DepenseRepository.supprimerTout();
-            deleteAllStore()
+          onPress: async () => {
+            await useDepenseStore.getState().deleteAll();
+            deleteAllStore();
             router.push("/");
           },
         },
@@ -47,9 +50,17 @@ export default function SettingsScreen() {
           style: "destructive",
           onPress: async () => {
             deleteAllStore();
+
             await resetDatabase();
             await initDatabase();
             await initializeData();
+
+            await useCategorieStore.getState().fetchCategories();
+            await useLimiteDepenseStore.getState().fetchLimites();
+            await useDepenseStore.getState().fetchDepenses();
+            const { mois, annee } = getCurrentDateParts();
+            await useStatsStore.getState().fetchDepenses(mois, annee);
+
             router.push("/");
           },
         },

@@ -1,7 +1,6 @@
-import { CategorieRepository } from "@/app/repositories/CategorieRepository";
 import { AppTheme } from "@/constants/theme";
-import { useFocusEffect } from "expo-router";
-import { useState, useCallback } from "react";
+import { useCategorieStore } from "@/store/categorieStore";
+import { useEffect, useState } from "react";
 import {
     Image,
     ScrollView,
@@ -20,15 +19,16 @@ interface SortProps {
 export default function SortComponent({ onSort, onInput }: SortProps) {
   const [filtre, setFiltre] = useState<number>(-1);
   const [options, setOptions] = useState<any[]>([]);
+  const categories = useCategorieStore((state) => state.categories);
 
-  useFocusEffect(useCallback(() => {
+  useEffect(() => {
     setFiltre(-1);
-    const opt = [
-      { id: -1, libelle: "Toutes" },
-      ...CategorieRepository.recupererTous(),
-    ];
+    if (!categories || categories.length === 0) {
+      useCategorieStore.getState().fetchCategories();
+    }
+    const opt = [{ id: -1, libelle: "Toutes" }, ...(categories || [])];
     setOptions(opt);
-  }, []));
+  }, [categories]);
 
   return (
     <View style={styles.container}>

@@ -1,14 +1,11 @@
-import { CategorieRepository } from "@/app/repositories/CategorieRepository";
-import { DepenseRepository } from "@/app/repositories/DepenseRepository";
 import { getCurrentDateParts } from "@/app/utils/util";
 import Header from "@/components/header";
 import { AppTheme } from "@/constants/theme";
-import { Categorie } from "@/models/Categorie";
 import { Depense } from "@/models/Depense";
+import { useCategorieStore } from "@/store/categorieStore";
 import { useDepenseStore } from "@/store/depenseStore";
 import { useStatsStore } from "@/store/statsStore";
-import { useFocusEffect } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -27,7 +24,7 @@ export default function AddExpenseScreen() {
   const [categorieId, setCategorieId] = useState<number>(1);
   const [modePaiement, setModePaiement] = useState<string>("Espèce");
   const [listModePaiement, setListModePaiement] = useState<string[]>([]);
-  const [categories, setCategories] = useState<Categorie[]>([]);
+  const categories = useCategorieStore((state) => state.categories);
   const regex = /^\d+$/;
   const setStatDepense = useStatsStore((state) => state.setDepenses);
   const { mois, annee } = getCurrentDateParts();
@@ -72,11 +69,7 @@ export default function AddExpenseScreen() {
     };
 
     await useDepenseStore.getState().createDepense(depense);
-    const depenses = await DepenseRepository.recupererSommeMontantParCategorie(
-      mois,
-      annee,
-    );
-    setStatDepense(depenses !== undefined ? depenses : []);
+    await useStatsStore.getState().fetchDepenses(mois, annee);
     Alert.alert("Votre dépense a bien été sauvegarder");
     resetChamp();
   };
@@ -86,11 +79,12 @@ export default function AddExpenseScreen() {
     setListModePaiement(["Espèce", "Carte", "Virement"]);
   }, []);
 
-  useFocusEffect(
-    useCallback(() => {
-      setCategories(CategorieRepository.recupererTous());
-    }, []),
-  );
+  useEffect(() => {
+    // si pas encore chargé, récupérer depuis repository via le store
+    if (!categories || categories.length === 0) {
+      useCategorieStore.getState().fetchCategories();
+    }
+  }, []);
 
   return (
     <KeyboardAvoidingView

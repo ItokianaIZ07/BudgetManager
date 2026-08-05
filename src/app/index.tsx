@@ -2,10 +2,12 @@ import Header from "@/components/header";
 import HistoryCard from "@/components/history/HistoryCard";
 import { AppTheme } from "@/constants/theme";
 import { initializeApplication } from "@/database/databaseInit";
+import { useCategorieStore } from "@/store/categorieStore";
 import { useDepenseStore } from "@/store/depenseStore";
+import { useLimiteDepenseStore } from "@/store/limiteDepenseStore";
 import { useStatsStore } from "@/store/statsStore";
-import { router, useFocusEffect } from "expo-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { router } from "expo-router";
+import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Button,
@@ -16,7 +18,6 @@ import {
   Text,
   View,
 } from "react-native";
-import { DepenseRepository } from "./repositories/DepenseRepository";
 import { getCurrentDateParts, Util } from "./utils/util";
 
 export default function PageAccueil() {
@@ -40,6 +41,9 @@ export default function PageAccueil() {
 
   async function chargerDepenses() {
     await fetchDepenses();
+    // Initialiser les autres stores pour éviter des requêtes répétées
+    await useCategorieStore.getState().fetchCategories();
+    await useLimiteDepenseStore.getState().fetchLimites();
   }
 
   async function supprimerDepense(id: number) {
@@ -47,11 +51,7 @@ export default function PageAccueil() {
   }
 
   async function initialiserDonneeDepense() {
-    const data = await DepenseRepository.recupererSommeMontantParCategorie(
-      mois,
-      annee,
-    );
-    setDepensesStats(data !== undefined ? data : []);
+    await useStatsStore.getState().fetchDepenses(mois, annee);
   }
 
   useEffect(() => {
