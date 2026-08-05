@@ -1,4 +1,6 @@
 import { CategorieRepository } from "@/app/repositories/CategorieRepository";
+import { DepenseRepository } from "@/app/repositories/DepenseRepository";
+import { LimiteDepenseRepository } from "@/app/repositories/LimiteDepenseRepository";
 import FormModal from "@/components/category/FormModal";
 import { AppTheme } from "@/constants/theme";
 import { Categorie } from "@/models/Categorie";
@@ -25,6 +27,12 @@ export default function CategoryScreen() {
   const loadCategories = () => {
     setCategories(CategorieRepository.recupererTous());
   };
+
+  const handleDelete = async (id: number) => {
+    await LimiteDepenseRepository.supprimerParCategorie(id);
+    await DepenseRepository.supprimerDepense(id);
+    deleteCategory(id);
+  }
 
   const deleteCategory = (id: number) => {
     Alert.alert(
@@ -95,7 +103,7 @@ export default function CategoryScreen() {
             <Text style={styles.categoryLabel}>{item.libelle}</Text>
             <View style={styles.action}>
               <TouchableOpacity
-                onPress={() => deleteCategory(item.id!)}
+                onPress={() =>handleDelete(item.id!)}
                 style={[styles.actionContent, styles.actionDelete]}
               >
                 <Image
