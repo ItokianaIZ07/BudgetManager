@@ -9,9 +9,13 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Linking,
 } from "react-native";
 
 export default function AboutScreen() {
+  const handleLinkPress = async ()=>{
+    Linking.openURL("https://github.com/ItokianaIZ07");
+  }
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -46,7 +50,7 @@ export default function AboutScreen() {
           </Text>
           <View style={styles.infoRow}>
             <Text style={styles.label}>GitHub</Text>
-            <Text style={styles.value}>ItokianaIZ07</Text>
+            <Text style={[styles.value, styles.linkStyle]} onPress={handleLinkPress}>ItokianaIZ07</Text>
           </View>
           <View style={styles.infoRow}>
             <Text style={styles.label}>Nom</Text>
@@ -191,4 +195,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 16,
   },
+  linkStyle: {
+    color: AppTheme.colors.primary,
+    textDecorationLine: "underline",
+  }
 });
