@@ -6,6 +6,8 @@ import Animated, {
   useAnimatedStyle,
   withSequence,
   withTiming,
+  withRepeat,
+  cancelAnimation,
 } from "react-native-reanimated";
 import { useStatsStore } from "@/store/statsStore";
 import { useEffect, useMemo, useState } from "react";
@@ -51,31 +53,28 @@ export default function StatHeader() {
     ],
   }));
 
-  scale.value = withSequence(
-    withTiming(1.2, { duration: 120 }),
-    withTiming(1, { duration: 120 }),
-  );
-
-  rotation.value = withSequence(
-    withTiming(-45, { duration: 100 }),
-    withTiming(45, { duration: 100 }),
-    withTiming(0, { duration: 100 }),
-  );
-
   const ringBell = () => {
-    rotation.value = withSequence(
-      withTiming(-20, { duration: 70 }),
-      withTiming(20, { duration: 70 }),
-      withTiming(-15, { duration: 70 }),
-      withTiming(15, { duration: 70 }),
-      withTiming(-8, { duration: 70 }),
-      withTiming(8, { duration: 70 }),
-      withTiming(0, { duration: 70 }),
+    rotation.value = withRepeat(
+      withSequence(
+        withTiming(-20, { duration: 300 }),
+        withTiming(20, { duration: 300 }),
+        withTiming(0, { duration: 300 }),
+      ),
+      -1, // répétition infinie
+      true,
     );
-    scale.value = withSequence(
-      withTiming(1.2, { duration: 120 }),
-      withTiming(1, { duration: 120 }),
-    );
+    scale.value = withRepeat(
+      withSequence(
+      withTiming(1.2, { duration: 300 }),
+      withTiming(1, { duration: 300 }),
+    ), -1, true);
+  };
+
+  const stopBell = () => {
+    cancelAnimation(rotation);
+    cancelAnimation(scale);
+    rotation.value = 0;
+    scale.value = 1;
   };
 
   const notificationsCount = notifications.length;
@@ -98,12 +97,12 @@ export default function StatHeader() {
           {
             backgroundColor:
               notifications.length > 0
-                ? AppTheme.colors.dangerSoft
+                ? "#fe4444be"
                 : AppTheme.colors.primarySoft,
           },
         ]}
         onPress={() => {
-          ringBell();
+          stopBell();
           router.push("/statistics/notification");
         }}
       >

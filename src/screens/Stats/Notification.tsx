@@ -35,6 +35,8 @@ export default function Notification() {
     }
   }
 
+  notifications.reverse();
+
   if (notifications.length == 0) {
     return (
       <View style={styles.empty}>
