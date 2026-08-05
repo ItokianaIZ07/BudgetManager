@@ -116,7 +116,7 @@ export default function FormModal({
             value={nom}
             onChangeText={setNom}
           />
-          <Text style={styles.label}>Limite de dépense</Text>
+          <Text style={styles.label}>Limite de dépense mensuel</Text>
           <TextInput
             style={styles.input}
             inputMode="numeric"

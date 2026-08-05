@@ -63,13 +63,8 @@ export default function PageAccueil() {
     };
 
     preparerApplication();
+    chargerDepenses();
   }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      chargerDepenses();
-    }, []),
-  );
 
   if (!estPret) {
     return (
