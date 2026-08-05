@@ -12,9 +12,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useStatsStore } from "@/store/statsStore";
 
 export default function SettingsScreen() {
   const anneeActuelle = new Date().getFullYear();
+  const deleteAllStore = useStatsStore((state)=>state.deleteAll)
   const clearData = () => {
     Alert.alert(
       "Confirmer la suppression",
@@ -26,6 +28,7 @@ export default function SettingsScreen() {
           style: "destructive",
           onPress: () => {
             DepenseRepository.supprimerTout();
+            deleteAllStore()
             router.push("/");
           },
         },
@@ -43,6 +46,7 @@ export default function SettingsScreen() {
           text: "Supprimer",
           style: "destructive",
           onPress: async () => {
+            deleteAllStore();
             await resetDatabase();
             await initDatabase();
             await initializeData();
@@ -106,7 +110,7 @@ export default function SettingsScreen() {
           <TouchableOpacity onPress={reconfigApp} style={styles.button}>
             <View style={styles.action}>
               <Text style={styles.buttonLabel}>
-                Restaures les configurations par défaut
+                Restaurer les configurations par défaut
               </Text>
               <Image
                 source={require("@/assets/images/refresh.png")}

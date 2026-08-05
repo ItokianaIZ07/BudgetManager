@@ -7,7 +7,8 @@ interface StatsStore {
     setDepenses: (depenses: any[]) =>void;
     addDepense: (depense: any)=>void;
     updateDepense: (depense: any)=>void;
-    deleteDepense:(id:number)=>void
+    deleteDepense:(id:number)=>void;
+    deleteAll:()=>void
 }    
 
 export const useStatsStore = create<StatsStore>((set)=>({
@@ -28,5 +29,11 @@ export const useStatsStore = create<StatsStore>((set)=>({
     deleteDepense: (id)=>
         set((state)=>({
             depenses: state.depenses.filter((e)=>e.id!==id)
+        })),
+
+    deleteAll: ()=>{
+        set(()=>({
+            depenses: []
         }))
+    }
 }));

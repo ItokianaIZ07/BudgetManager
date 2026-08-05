@@ -153,11 +153,7 @@ export default function StatHeader() {
     });
 
     return list;
-  }, [
-    statsDepense,
-    depensesParCategorieMoisActuel,
-    depensesParCategorieMoisPrecedent,
-  ]);
+  }, [statsDepense, depensesParCategorieMoisActuel, depensesParCategorieMoisPrecedent,]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
