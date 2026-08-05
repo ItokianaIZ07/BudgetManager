@@ -1,4 +1,3 @@
-
 export const months = [
   { valeur: "01", label: "Jan" },
   { valeur: "02", label: "Fév" },
@@ -25,6 +24,22 @@ export const getCurrentDateParts = () => {
     date,
     mois: date.split("-")[1],
     annee: date.split("-")[0],
+  };
+};
+
+export const getPreviousMonthParts = () => {
+  const { mois, annee } = getCurrentDateParts();
+  let previousMois = Number(mois) - 1;
+  let previousAnnee = Number(annee);
+
+  if (previousMois < 1) {
+    previousMois = 12;
+    previousAnnee -= 1;
+  }
+
+  return {
+    mois: String(previousMois).padStart(2, "0"),
+    annee: String(previousAnnee),
   };
 };
 

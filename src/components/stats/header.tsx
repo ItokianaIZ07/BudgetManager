@@ -1,23 +1,65 @@
+import { DepenseRepository } from "@/app/repositories/DepenseRepository";
+import {
+  Util,
+  getCurrentDateParts,
+  getPreviousMonthParts,
+} from "@/app/utils/util";
 import { AppTheme } from "@/constants/theme";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { NotificationType } from "@/models/Notification";
+import { useStatsStore } from "@/store/statsStore";
 import { router } from "expo-router";
+import { useEffect, useMemo, useState } from "react";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, {
-  useSharedValue,
+  cancelAnimation,
   useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
   withSequence,
   withTiming,
-  withRepeat,
-  cancelAnimation,
 } from "react-native-reanimated";
-import { useStatsStore } from "@/store/statsStore";
-import { useEffect, useMemo, useState } from "react";
-import { NotificationType } from "@/models/Notification";
-import { Util } from "@/app/utils/util";
 
 export default function StatHeader() {
   const statsDepense = useStatsStore((state) => state.depenses);
+  const [depensesParCategorieMoisActuel, setDepensesParCategorieMoisActuel] =
+    useState<any[]>([]);
+  const [
+    depensesParCategorieMoisPrecedent,
+    setDepensesParCategorieMoisPrecedent,
+  ] = useState<any[]>([]);
   const rotation = useSharedValue(0);
   const scale = useSharedValue(1);
+
+  useEffect(() => {
+    const { mois, annee } = getCurrentDateParts();
+    const { mois: moisPrecedent, annee: anneePrecedent } =
+      getPreviousMonthParts();
+
+    const fetchDepenses = async () => {
+      try {
+        const depensesActuelles =
+          await DepenseRepository.recupererDepensesParCategorieMoisAnnee(
+            mois,
+            annee,
+          );
+        const depensesPrecedentes =
+          await DepenseRepository.recupererDepensesParCategorieMoisAnnee(
+            moisPrecedent,
+            anneePrecedent,
+          );
+
+        setDepensesParCategorieMoisActuel(depensesActuelles || []);
+        setDepensesParCategorieMoisPrecedent(depensesPrecedentes || []);
+      } catch (error) {
+        console.error(
+          "Erreur lors de la récupération des dépenses par catégorie :",
+          error,
+        );
+      }
+    };
+
+    fetchDepenses();
+  }, []);
 
   const notifications = useMemo(() => {
     const list: NotificationType[] = [];
@@ -39,8 +81,83 @@ export default function StatHeader() {
         list.push({ type: "alert", content });
       }
     }
+
+    const totalMoisActuel = depensesParCategorieMoisActuel.reduce(
+      (acc, depense) => acc + Number(depense.total || 0),
+      0,
+    );
+    const totalMoisPrecedent = depensesParCategorieMoisPrecedent.reduce(
+      (acc, depense) => acc + Number(depense.total || 0),
+      0,
+    );
+
+    if (totalMoisPrecedent > 0) {
+      const difference = totalMoisActuel - totalMoisPrecedent;
+      const pourcentage = (difference / totalMoisPrecedent) * 100;
+
+      if (pourcentage > 5) {
+        list.push({
+          type: "info",
+          content: `Les dépenses de ce mois sont supérieures de ${pourcentage.toFixed(1)}% par rapport au mois dernier.`,
+        });
+      }
+    }
+
+    const previousByCategory = depensesParCategorieMoisPrecedent.reduce(
+      (acc, depense) => ({
+        ...acc,
+        [depense.categorie]: Number(depense.total || 0),
+      }),
+      {} as Record<string, number>,
+    );
+
+    const currentByCategory = depensesParCategorieMoisActuel.reduce(
+      (acc, depense) => ({
+        ...acc,
+        [depense.categorie]: Number(depense.total || 0),
+      }),
+      {} as Record<string, number>,
+    );
+
+    const categories = new Set<string>([
+      ...Object.keys(previousByCategory),
+      ...Object.keys(currentByCategory),
+    ]);
+
+    categories.forEach((categorie) => {
+      const currentTotal = currentByCategory[categorie] ?? 0;
+      const previousTotal = previousByCategory[categorie] ?? 0;
+
+      if (currentTotal === previousTotal) return;
+
+      if (previousTotal === 0) {
+        if (currentTotal > 0) {
+          list.push({
+            type: "info",
+            content: `Dépenses pour ${categorie} ce mois : ${Util.formatNumber(currentTotal)} Ar, aucune dépense le mois précédent.`,
+          });
+        }
+      } else {
+        const differenceCategorie = currentTotal - previousTotal;
+        const pourcentageCategorie =
+          (differenceCategorie / previousTotal) * 100;
+        const label = differenceCategorie >= 0 ? "augmenté" : "diminué";
+
+        if (Math.abs(pourcentageCategorie) > 5) {
+          list.push({
+            type: "info",
+            content: `Dépenses pour ${categorie} ont ${label} de ${Math.abs(pourcentageCategorie).toFixed(1)}% (${Util.formatNumber(Math.abs(differenceCategorie))} Ar) par rapport au mois dernier.`,
+          });
+        }
+      }
+    });
+
     return list;
-  }, [statsDepense]);
+  }, [
+    statsDepense,
+    depensesParCategorieMoisActuel,
+    depensesParCategorieMoisPrecedent,
+  ]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
@@ -65,9 +182,12 @@ export default function StatHeader() {
     );
     scale.value = withRepeat(
       withSequence(
-      withTiming(1.2, { duration: 300 }),
-      withTiming(1, { duration: 300 }),
-    ), -1, true);
+        withTiming(1.2, { duration: 300 }),
+        withTiming(1, { duration: 300 }),
+      ),
+      -1,
+      true,
+    );
   };
 
   const stopBell = () => {
