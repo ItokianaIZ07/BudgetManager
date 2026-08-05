@@ -1,13 +1,14 @@
 import { AppTheme } from "@/constants/theme";
 import { router } from "expo-router";
 import {
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function AboutScreen() {
@@ -32,6 +33,17 @@ export default function AboutScreen() {
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Développeur</Text>
+          <View style={styles.imageWrapper}>
+            <Image
+              source={require("../../../assets/images/dev.jpg")}
+              style={styles.developerImage}
+              resizeMode="cover"
+            />
+          </View>
+          <Text style={styles.studentInfo}>
+            Étudiant en informatique, je conçois des applications mobiles et
+            web avec passion.
+          </Text>
           <View style={styles.infoRow}>
             <Text style={styles.label}>GitHub</Text>
             <Text style={styles.value}>ItokianaIZ07</Text>
@@ -149,5 +161,34 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 15,
     fontWeight: "700",
+  },
+  imageWrapper: {
+    alignSelf: "center",
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    overflow: "hidden",
+    marginBottom: 16,
+    borderWidth: 2,
+    borderColor: AppTheme.colors.primary,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: AppTheme.colors.background,
+    shadowColor: AppTheme.colors.shadow,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  developerImage: {
+    width: "100%",
+    height: "100%",
+  },
+  studentInfo: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: AppTheme.colors.textMuted,
+    textAlign: "center",
+    marginBottom: 16,
   },
 });
