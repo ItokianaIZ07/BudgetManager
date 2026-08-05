@@ -35,7 +35,7 @@ export default function DepenseCategorieContainer({listDepense,}: DepenseCategor
             <View style={styles.labelSection}>
               <Text style={styles.categorieLabel}>{item.categorie}</Text>
               <Text style={styles.limitLabel}>
-                Limité à {Util.formatNumber(item.limite)} Ar
+                Limité à {Util.formatNumber(item.limite)} Ar par mois
               </Text>
             </View>
             <View style={styles.labelSection}>

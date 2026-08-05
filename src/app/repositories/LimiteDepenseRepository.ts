@@ -23,4 +23,9 @@ export const LimiteDepenseRepository = {
 
         return resultat.lastInsertRowId;
     },
+
+    supprimerParCategorie : async (id: number) : Promise<void> =>{
+    const requete = "DELETE FROM limite_depense WHERE categorie_id = ?";
+    await db.runAsync(requete, [id]);
+  }
 }

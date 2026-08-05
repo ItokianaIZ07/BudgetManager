@@ -1,4 +1,3 @@
-import { DepenseRepository } from "@/app/repositories/DepenseRepository";
 import { getCurrentDateParts } from "@/app/utils/util";
 import Header from "@/components/header";
 import HistoryCard from "@/components/history/HistoryCard";
@@ -6,8 +5,8 @@ import SortComponent from "@/components/history/SortComponent";
 import { AppTheme } from "@/constants/theme";
 import { useDepenseStore } from "@/store/depenseStore";
 import { useStatsStore } from "@/store/statsStore";
-import { router, useFocusEffect } from "expo-router";
-import { useCallback } from "react";
+import { router } from "expo-router";
+import { useEffect } from "react";
 import {
   Button,
   FlatList,
@@ -26,17 +25,17 @@ export default function HistoryScreen() {
 
   const { mois, annee } = getCurrentDateParts();
 
-  const rechargeDepense = async (id: number) => {
-    await deleteDepense(id);
-    await initialiserDonneeDepense();
-  };
-
   async function chargerDepenses() {
     await fetchDepenses();
   }
 
   async function supprimerDepense(id: number) {
-    await rechargeDepense(id);
+    await deleteDepense(id);
+    await initialiserDonneeDepense();
+  }
+
+  async function sortByCategoryId(id: number) {
+    await useDepenseStore.getState().fetchDepensesParCategorie(id);
   }
 
   const sortById = async (id: number) => {
@@ -44,8 +43,7 @@ export default function HistoryScreen() {
       await chargerDepenses();
       return;
     }
-    const donnees = await DepenseRepository.recupererParCategorie(id);
-    useDepenseStore.getState().setDepenses(donnees);
+    await sortByCategoryId(id);
   };
 
   const searchByKeyWord = async (keyword: string) => {
@@ -53,23 +51,16 @@ export default function HistoryScreen() {
       await chargerDepenses();
       return;
     }
-    const donnees = await DepenseRepository.rechercherParMotCle(keyword);
-    useDepenseStore.getState().setDepenses(donnees);
+    await useDepenseStore.getState().searchByKeyword(keyword);
   };
 
   async function initialiserDonneeDepense() {
-    const data = await DepenseRepository.recupererSommeMontantParCategorie(
-      mois,
-      annee,
-    );
-    setDepensesStats(data !== undefined ? data : []);
+    await useStatsStore.getState().fetchDepenses(mois, annee);
   }
 
-  useFocusEffect(
-    useCallback(() => {
-      sortById(-1);
-    }, []),
-  );
+  useEffect(() => {
+    sortById(-1);
+  }, []);
 
   return (
     <KeyboardAvoidingView

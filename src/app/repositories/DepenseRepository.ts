@@ -133,4 +133,9 @@ export const DepenseRepository = {
       await stmt.finalizeAsync();
     }
   },
+
+  supprimerParCategorie : async (id: number) : Promise<void> =>{
+    const requete = "DELETE FROM depenses WHERE categorie_id = ?";
+    await db.runAsync(requete, [id]);
+  }
 };

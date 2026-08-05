@@ -1,15 +1,15 @@
 import { Util } from "@/app/utils/util";
 import { AppTheme } from "@/constants/theme";
 import { Depense } from "@/models/Depense";
+import { useCategorieStore } from "@/store/categorieStore";
 import { StyleSheet, Text, View } from "react-native";
-import DeleteButton from "./DeleteButton";
-import { CategorieRepository } from "@/app/repositories/CategorieRepository";
 import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming
+    useAnimatedStyle,
+    useSharedValue,
+    withTiming,
 } from "react-native-reanimated";
 import { scheduleOnRN } from "react-native-worklets";
+import DeleteButton from "./DeleteButton";
 
 interface HistoryCardProps {
   item: Depense;
@@ -17,9 +17,10 @@ interface HistoryCardProps {
 }
 
 export default function HistoryCard({ item, onDelete }: HistoryCardProps) {
-  const getCategorie = async (id: number) => {
-    const categorie = await CategorieRepository.recupererParId(id);
-    return categorie?.libelle;
+  const categories = useCategorieStore((s) => s.categories);
+  const getCategorie = (id: number) => {
+    const cat = categories.find((c) => c.id === id);
+    return cat?.libelle ?? "";
   };
 
   const translateX = useSharedValue(0);
@@ -47,7 +48,7 @@ export default function HistoryCard({ item, onDelete }: HistoryCardProps) {
       },
       (finished) => {
         if (finished) {
-          scheduleOnRN(onDelete, item.id!)
+          scheduleOnRN(onDelete, item.id!);
         }
       },
     );
@@ -58,7 +59,7 @@ export default function HistoryCard({ item, onDelete }: HistoryCardProps) {
       <View>
         <Text style={styles.title}>{item.description}</Text>
         <Text style={styles.date}>
-          {getCategorie(item.id!)} . {Util.formatDate(item.date)}
+          {getCategorie(item.categorie_id)} . {Util.formatDate(item.date)}
         </Text>
       </View>
       <Text style={styles.price}>{Util.formatNumber(item.montant)} Ar</Text>

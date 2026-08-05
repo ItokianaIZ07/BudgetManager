@@ -1,9 +1,9 @@
-import { CategorieRepository } from "@/app/repositories/CategorieRepository";
-import { LimiteDepenseRepository } from "@/app/repositories/LimiteDepenseRepository";
 import { AppTheme } from "@/constants/theme";
 import { Categorie } from "@/models/Categorie";
 import { LimiteDepense } from "@/models/LimiteDepense";
-import { useState } from "react";
+import { useCategorieStore } from "@/store/categorieStore";
+import { useLimiteDepenseStore } from "@/store/limiteDepenseStore";
+import { useEffect, useState } from "react";
 import {
   Alert,
   Modal,
@@ -37,54 +37,72 @@ export default function FormModal({
   const [limite, setLimite] = useState<string>("");
 
   const saveCategory = async (category: Categorie) => {
-    const idInserted = await CategorieRepository.sauvegarderCategorie(category);
+    const idInserted = await useCategorieStore
+      .getState()
+      .createCategorie(category);
     const limiteDepense: LimiteDepense = {
       idCategorie: idInserted,
       limite: category.limite!,
     };
-    await LimiteDepenseRepository.sauvegarderLimite(limiteDepense);
+    await useLimiteDepenseStore.getState().createLimite(limiteDepense);
   };
 
   const updateCategory = async (category: Categorie) => {
-    CategorieRepository.mettreAJourCategorie(category);
-    await LimiteDepenseRepository.mettreAJourLimite(category);
+    await useCategorieStore.getState().updateCategorie(category);
+    await useLimiteDepenseStore.getState().updateLimite({
+      id: undefined,
+      idCategorie: category.id!,
+      limite: category.limite!,
+    });
   };
 
-  const save = () => {
+  const save = async () => {
     let category: Categorie = { libelle: "" };
-    let message: string = "";
+    let message = "";
+
     try {
-      if (mode == "add") {
+      if (mode === "add") {
         if (nom.trim() === "") {
-          Alert.alert("Veuillez entrez un nom pour la catégorie");
+          Alert.alert("Veuillez entrer un nom pour la catégorie");
           return;
         }
+
         if (limite.trim() === "") {
           Alert.alert(
-            "Veuillez entrez une limite de dépense pour la catégorie",
+            "Veuillez entrer une limite de dépense pour la catégorie",
           );
           return;
         }
-        category = { libelle: nom, limite: parseFloat(limite) };
-        saveCategory(category);
-        message = "Categorie sauvegardé avec succès";
-      } else if (mode == "edit") {
-        if (nom.trim() === "") {
-          setNom(categorie!.libelle!);
-        }
-        if (limite.trim() === "") {
-          setLimite(categorie!.limite!.toString());
-        }
+
         category = {
-          id: categorie?.id,
-          libelle: nom,
+          libelle: nom.trim(),
           limite: parseFloat(limite),
         };
-        updateCategory(category);
-        message = "La categorie a été mis à jour";
+
+        await saveCategory(category);
+        message = "Catégorie sauvegardée avec succès";
+      } else if (mode === "edit") {
+        const nomFinal =
+          nom.trim() === "" ? (categorie?.libelle ?? "") : nom.trim();
+
+        const limiteFinal =
+          limite.trim() === "" ? (categorie?.limite ?? 0) : parseFloat(limite);
+
+        category = {
+          id: categorie?.id,
+          libelle: nomFinal,
+          limite: limiteFinal,
+        };
+
+        await updateCategory(category);
+
+        message = "La catégorie a été mise à jour";
       }
+
       hideModal();
+
       Alert.alert(message);
+
       onRefresh?.();
     } catch (error) {
       console.error(
@@ -101,6 +119,18 @@ export default function FormModal({
     setLimite("");
   };
 
+  useEffect(() => {
+    if (mode === "edit" && categorie) {
+      setNom(categorie.libelle ?? "");
+      setLimite(categorie.limite?.toString() ?? "");
+    }
+
+    if (mode === "add") {
+      setNom("");
+      setLimite("");
+    }
+  }, [mode, categorie]);
+
   return (
     <Modal visible={visible} animationType="slide" transparent={true}>
       <View style={styles.form}>
@@ -116,7 +146,7 @@ export default function FormModal({
             value={nom}
             onChangeText={setNom}
           />
-          <Text style={styles.label}>Limite de dépense</Text>
+          <Text style={styles.label}>Limite de dépense mensuel</Text>
           <TextInput
             style={styles.input}
             inputMode="numeric"

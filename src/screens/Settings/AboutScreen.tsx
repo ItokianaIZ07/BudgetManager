@@ -30,7 +30,7 @@ export default function AboutScreen() {
           <Text style={styles.version}>Version v1</Text>
           <Text style={styles.description}>
             Une application simple et pratique pour suivre vos dépenses, gérer
-            vos catégories et garder un meilleur contrôle de votre budget au
+            vos catégories et leurs limites mensuel et garder un meilleur contrôle de votre budget au
             quotidien.
           </Text>
         </View>

@@ -1,48 +1,63 @@
-import { CategorieRepository } from "@/app/repositories/CategorieRepository";
+// repositories replaced by stores
+import { getCurrentDateParts } from "@/app/utils/util";
 import FormModal from "@/components/category/FormModal";
 import { AppTheme } from "@/constants/theme";
 import { Categorie } from "@/models/Categorie";
-import { useFocusEffect } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCategorieStore } from "@/store/categorieStore";
+import { useLimiteDepenseStore } from "@/store/limiteDepenseStore";
+import { useStatsStore } from "@/store/statsStore";
+import { useState } from "react";
 import {
-    Alert,
-    FlatList,
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  FlatList,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function CategoryScreen() {
-  const [categories, setCategories] = useState<Categorie[]>([]);
+  const categories = useCategorieStore((state) => state.categories);
   const [visible, setVisible] = useState<boolean>(false);
   const [categorieEdited, setCategorieEdited] = useState<Categorie>();
   const [mode, setMode] = useState<string>("add");
 
   const loadCategories = () => {
-    setCategories(CategorieRepository.recupererTous());
+    useCategorieStore.getState().fetchCategories();
   };
 
-  const deleteCategory = (id: number) => {
+  const handleDelete = (id: number) => {
     Alert.alert(
       "Confirmer la suppression",
-      "Es-tu sûr de vouloir supprimer catégorie ?",
+      "Es-tu sûr de vouloir supprimer cette catégorie ? Les dépenses et limites associées seront également supprimées.",
       [
         { text: "Annuler", style: "cancel" },
         {
           text: "Supprimer",
           style: "destructive",
           onPress: async () => {
-            await CategorieRepository.supprimerCategorie(id);
-            loadCategories();
+            try {
+              await useCategorieStore.getState().deleteCategorie(id);
+              await useStatsStore.getState().deleteDepense(id);
+              await useLimiteDepenseStore.getState().fetchLimites();
+              await useCategorieStore.getState().fetchCategories();
+              const { mois, annee } = getCurrentDateParts();
+              await useStatsStore.getState().fetchDepenses(mois, annee);
+            } catch (error) {
+              console.error(
+                "Erreur lors de la suppression de la catégorie :",
+                error,
+              );
+            }
           },
         },
       ],
     );
   };
+
 
   const showEditModal = (categorie: Categorie) => {
     setCategorieEdited(categorie);
@@ -50,11 +65,6 @@ export default function CategoryScreen() {
     setVisible(true);
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      loadCategories();
-    }, []),
-  );
 
   return (
     <KeyboardAvoidingView
@@ -95,7 +105,7 @@ export default function CategoryScreen() {
             <Text style={styles.categoryLabel}>{item.libelle}</Text>
             <View style={styles.action}>
               <TouchableOpacity
-                onPress={() => deleteCategory(item.id!)}
+                onPress={() => handleDelete(item.id!)}
                 style={[styles.actionContent, styles.actionDelete]}
               >
                 <Image

@@ -11,31 +11,35 @@ import { AppTheme } from "@/constants/theme";
 import { NotificationType } from "@/models/Notification";
 import { useStatsStore } from "@/store/statsStore";
 import { Util } from "@/app/utils/util";
+import { useEffect } from "react";
 
 export default function Notification() {
   const notifications: NotificationType[] = [];
   const depenses = useStatsStore(state=>state.depenses);
 
-  for (let depense of depenses) {
-    const consommation = depense.total / depense.limite;
-    const notif : NotificationType = {
-      type: "alert",
-      content : ""
-    };
-    if (consommation >= 0.8 && consommation < 1) {
-      notif.content = `La consommation de la catégorie ${depense.categorie} a atteint plus de 80%.`;
-    } else if (consommation == 1) {
-      notif.content = `La consommation de la catégorie ${depense.categorie} a atteint la limite de ${Util.formatNumber(depense.limite)} Ar`;
+  const checkNotification = () => {
+    for (let depense of depenses) {
+      const consommation = depense.total / depense.limite;
+      const notif : NotificationType = {
+        type: "alert",
+        content : ""
+      };
+      if (consommation >= 0.8 && consommation < 1) {
+        notif.content = `La consommation de la catégorie ${depense.categorie} a atteint plus de 80%.`;
+      } else if (consommation == 1) {
+        notif.content = `La consommation de la catégorie ${depense.categorie} a atteint la limite de ${Util.formatNumber(depense.limite)} Ar`;
+      }
+      else if (consommation > 1){
+        notif.content = `La consommation de la catégorie ${depense.categorie} a dépassé la limite de ${Util.formatNumber(depense.limite)} Ar`;
+      }
+      if (notif.content.trim() !== "") {
+        notifications.push(notif);
+      }
     }
-    else if (consommation > 1){
-      notif.content = `La consommation de la catégorie ${depense.categorie} a dépassé la limite de ${Util.formatNumber(depense.limite)} Ar`;
-    }
-    if (notif.content.trim() !== "") {
-      notifications.push(notif);
-    }
+    notifications.reverse();
   }
 
-  notifications.reverse();
+  checkNotification();
 
   if (notifications.length == 0) {
     return (

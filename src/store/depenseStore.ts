@@ -8,9 +8,12 @@ interface DepenseStoreState {
   error: string | null;
   setDepenses: (depenses: Depense[]) => void;
   fetchDepenses: () => Promise<void>;
+  fetchDepensesParCategorie: (categorieId: number) => Promise<void>;
+  searchByKeyword: (keyword: string) => Promise<void>;
   createDepense: (depense: Omit<Depense, "id">) => Promise<number>;
   updateDepense: (depense: Depense) => Promise<void>;
   deleteDepense: (id: number) => Promise<void>;
+  deleteAll: () => Promise<void>;
 }
 
 export const useDepenseStore = create<DepenseStoreState>((set, get) => ({
@@ -29,6 +32,32 @@ export const useDepenseStore = create<DepenseStoreState>((set, get) => ({
     } catch (error) {
       console.error("Erreur lors du chargement des dépenses :", error);
       set({ error: "Impossible de charger les dépenses", loading: false });
+    }
+  },
+
+  fetchDepensesParCategorie: async (categorieId: number) => {
+    set({ loading: true, error: null });
+    try {
+      const donnees =
+        await DepenseRepository.recupererParCategorie(categorieId);
+      set({ depenses: donnees, loading: false });
+    } catch (error) {
+      console.error(
+        "Erreur lors du chargement des dépenses par catégorie :",
+        error,
+      );
+      set({ error: "Impossible de charger les dépenses", loading: false });
+    }
+  },
+
+  searchByKeyword: async (keyword: string) => {
+    set({ loading: true, error: null });
+    try {
+      const donnees = await DepenseRepository.rechercherParMotCle(keyword);
+      set({ depenses: donnees, loading: false });
+    } catch (error) {
+      console.error("Erreur lors de la recherche des dépenses :", error);
+      set({ error: "Impossible de rechercher", loading: false });
     }
   },
 
@@ -65,6 +94,18 @@ export const useDepenseStore = create<DepenseStoreState>((set, get) => ({
       await get().fetchDepenses();
     } catch (error) {
       console.error("Erreur lors de la suppression de la dépense :", error);
+      throw error;
+    }
+  },
+  deleteAll: async () => {
+    try {
+      await DepenseRepository.supprimerTout();
+      set({ depenses: [] });
+    } catch (error) {
+      console.error(
+        "Erreur lors de la suppression de toutes les dépenses :",
+        error,
+      );
       throw error;
     }
   },

@@ -1,38 +1,38 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  StatusBar,
-  Platform,
-  KeyboardAvoidingView,
-  Image,
-  ScrollView
-} from "react-native";
-import DepenseCategorieContainer from "@/components/stats/DepenseCategorieContainer";
-import { useCallback, useState } from "react";
-import { useFocusEffect } from "expo-router";
-import { DepenseRepository } from "@/app/repositories/DepenseRepository";
 import { getMonth, Util } from "@/app/utils/util";
+import DepenseCategorieContainer from "@/components/stats/DepenseCategorieContainer";
 import { AppTheme } from "@/constants/theme";
 import { useStatsStore } from "@/store/statsStore";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
+import {
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 export default function StatisticsScreen() {
   const [depenseMoisActuelle, setDepenseMoisActuelle] = useState<number>(0);
-  const listDepense = useStatsStore(state=>state.depenses);
+  const listDepense = useStatsStore((state) => state.depenses);
 
   const dateActuelle = new Date().toISOString().split("T")[0];
   const mois = dateActuelle.split("-")[1];
   const annee = dateActuelle.split("-")[0];
-  
-  const getDepenseDuMois = async () => {
-    const montant = await DepenseRepository.recupererSommeParMoisAnnee(mois,annee);
-    setDepenseMoisActuelle(montant !== null ? montant.total : 0);
-  };
-  
 
-  useFocusEffect(useCallback(() => {
-    getDepenseDuMois();
-  }, []));
+  const getDepenseDuMois = async () => {
+    const montant = await useStatsStore
+      .getState()
+      .fetchTotalForMonth(mois, annee);
+    setDepenseMoisActuelle(montant);
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      getDepenseDuMois();
+    }, []),
+  );
 
   return (
     <KeyboardAvoidingView
@@ -42,7 +42,8 @@ export default function StatisticsScreen() {
       <View style={styles.depenseContainer}>
         <View style={styles.depenseLabelContainer}>
           <Text style={styles.depenseLabel}>
-            Dépense de ce mois : <Text style={{fontWeight: "bold"}}>{getMonth(mois)}</Text>
+            Dépense de ce mois :{" "}
+            <Text style={{ fontWeight: "bold" }}>{getMonth(mois)}</Text>
           </Text>
           <Text style={[styles.depenseLabel, styles.depenseValue]}>
             {Util.formatNumber(depenseMoisActuelle)} Ar
@@ -55,7 +56,7 @@ export default function StatisticsScreen() {
           />
         </View>
       </View>
-      <DepenseCategorieContainer listDepense={listDepense}/>
+      <DepenseCategorieContainer listDepense={listDepense} />
     </KeyboardAvoidingView>
   );
 }
