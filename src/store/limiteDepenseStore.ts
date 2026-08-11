@@ -1,5 +1,5 @@
-import { LimiteDepenseRepository } from "@/app/repositories/LimiteDepenseRepository";
 import { LimiteDepense } from "@/models/LimiteDepense";
+import { LimiteDepenseRepository } from "@/repositories/LimiteDepenseRepository";
 import { create } from "zustand";
 
 interface LimiteDepenseStoreState {

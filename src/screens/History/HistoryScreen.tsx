@@ -1,20 +1,20 @@
-import { getCurrentDateParts } from "@/app/utils/util";
 import Header from "@/components/header";
 import HistoryCard from "@/components/history/HistoryCard";
 import SortComponent from "@/components/history/SortComponent";
 import { AppTheme } from "@/constants/theme";
 import { useDepenseStore } from "@/store/depenseStore";
 import { useStatsStore } from "@/store/statsStore";
+import { getCurrentDateParts } from "@/utils/util";
 import { router } from "expo-router";
 import { useEffect } from "react";
 import {
-  Button,
-  FlatList,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  Text,
-  View,
+    Button,
+    FlatList,
+    KeyboardAvoidingView,
+    Platform,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 
 export default function HistoryScreen() {

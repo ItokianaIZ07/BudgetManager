@@ -1,4 +1,4 @@
-import { DepenseRepository } from "@/app/repositories/DepenseRepository";
+import { DepenseRepository } from "@/repositories/DepenseRepository";
 import { create } from "zustand";
 
 interface StatsStore {

@@ -1,10 +1,10 @@
-import { getCurrentDateParts } from "@/app/utils/util";
 import Header from "@/components/header";
 import { AppTheme } from "@/constants/theme";
 import { Depense } from "@/models/Depense";
 import { useCategorieStore } from "@/store/categorieStore";
 import { useDepenseStore } from "@/store/depenseStore";
 import { useStatsStore } from "@/store/statsStore";
+import { getCurrentDateParts } from "@/utils/util";
 import { useEffect, useState } from "react";
 import {
   Alert,

@@ -1,16 +1,16 @@
-import { getMonth, Util } from "@/app/utils/util";
 import DepenseCategorieContainer from "@/components/stats/DepenseCategorieContainer";
 import { AppTheme } from "@/constants/theme";
 import { useStatsStore } from "@/store/statsStore";
+import { getMonth, Util } from "@/utils/util";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import {
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  Text,
-  View,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 
 export default function StatisticsScreen() {

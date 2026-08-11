@@ -9,16 +9,16 @@ import { useStatsStore } from "@/store/statsStore";
 import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
-  Button,
-  FlatList,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  Text,
-  View,
+    ActivityIndicator,
+    Button,
+    FlatList,
+    KeyboardAvoidingView,
+    Platform,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
-import { getCurrentDateParts, Util } from "./utils/util";
+import { getCurrentDateParts, Util } from "../utils/util";
 
 export default function PageAccueil() {
   const [estPret, setEstPret] = useState<boolean>(false);
@@ -56,14 +56,16 @@ export default function PageAccueil() {
 
   useEffect(() => {
     const preparerApplication = async () => {
-      await initializeApplication(async () => {
-        await initialiserDonneeDepense();
-      });
-      setEstPret(true);
+      try {
+        await initializeApplication(async () => {
+          await initialiserDonneeDepense();
+        });
+        await chargerDepenses();
+      } finally {
+        setEstPret(true);
+      }
     };
-
     preparerApplication();
-    chargerDepenses();
   }, []);
 
   if (!estPret) {

@@ -1,20 +1,20 @@
-import { getCurrentDateParts } from "@/app/utils/util";
 import { AppTheme } from "@/constants/theme";
 import { initDatabase, initializeData, resetDatabase } from "@/database/sqlite";
 import { useCategorieStore } from "@/store/categorieStore";
 import { useDepenseStore } from "@/store/depenseStore";
 import { useLimiteDepenseStore } from "@/store/limiteDepenseStore";
 import { useStatsStore } from "@/store/statsStore";
+import { getCurrentDateParts } from "@/utils/util";
 import { router } from "expo-router";
 import {
-  Alert,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 export default function SettingsScreen() {

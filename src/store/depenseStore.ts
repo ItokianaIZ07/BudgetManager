@@ -1,5 +1,5 @@
-import { DepenseRepository } from "@/app/repositories/DepenseRepository";
 import { Depense } from "@/models/Depense";
+import { DepenseRepository } from "@/repositories/DepenseRepository";
 import { create } from "zustand";
 
 interface DepenseStoreState {

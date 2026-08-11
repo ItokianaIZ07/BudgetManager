@@ -1,7 +1,7 @@
-import { Util } from "@/app/utils/util";
 import { AppTheme } from "@/constants/theme";
 import { Depense } from "@/models/Depense";
 import { useCategorieStore } from "@/store/categorieStore";
+import { Util } from "@/utils/util";
 import { StyleSheet, Text, View } from "react-native";
 import Animated, {
     useAnimatedStyle,

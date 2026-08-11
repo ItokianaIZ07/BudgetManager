@@ -1,22 +1,22 @@
 // repositories replaced by stores
-import { getCurrentDateParts } from "@/app/utils/util";
 import FormModal from "@/components/category/FormModal";
 import { AppTheme } from "@/constants/theme";
 import { Categorie } from "@/models/Categorie";
 import { useCategorieStore } from "@/store/categorieStore";
 import { useLimiteDepenseStore } from "@/store/limiteDepenseStore";
 import { useStatsStore } from "@/store/statsStore";
+import { getCurrentDateParts } from "@/utils/util";
 import { useState } from "react";
 import {
-  Alert,
-  FlatList,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    FlatList,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 export default function CategoryScreen() {
@@ -58,13 +58,11 @@ export default function CategoryScreen() {
     );
   };
 
-
   const showEditModal = (categorie: Categorie) => {
     setCategorieEdited(categorie);
     setMode("edit");
     setVisible(true);
   };
-
 
   return (
     <KeyboardAvoidingView

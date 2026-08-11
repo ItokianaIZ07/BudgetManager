@@ -1,11 +1,7 @@
-import {
-    Util,
-    getCurrentDateParts,
-    getPreviousMonthParts,
-} from "@/app/utils/util";
 import { AppTheme } from "@/constants/theme";
 import { NotificationType } from "@/models/Notification";
 import { useStatsStore } from "@/store/statsStore";
+import { Util, getCurrentDateParts, getPreviousMonthParts } from "@/utils/util";
 import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";

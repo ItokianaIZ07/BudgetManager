@@ -1,5 +1,5 @@
-import { Util } from "@/app/utils/util";
 import { AppTheme } from "@/constants/theme";
+import { Util } from "@/utils/util";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import ProgressBar from "./ProgressBar";
 
@@ -7,8 +7,9 @@ interface DepenseCategorieProps {
   listDepense: any[];
 }
 
-export default function DepenseCategorieContainer({listDepense,}: DepenseCategorieProps) {
-
+export default function DepenseCategorieContainer({
+  listDepense,
+}: DepenseCategorieProps) {
   const floatFormat = (nombre: number) => {
     return nombre.toFixed(2);
   };
@@ -48,9 +49,7 @@ export default function DepenseCategorieContainer({listDepense,}: DepenseCategor
             </View>
           </View>
           <View style={styles.progressBarContainer}>
-            <ProgressBar
-              progress={item.total / item.limite}
-            />
+            <ProgressBar progress={item.total / item.limite} />
           </View>
         </View>
       ))}

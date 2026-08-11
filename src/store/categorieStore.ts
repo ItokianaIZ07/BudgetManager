@@ -1,7 +1,7 @@
-import { CategorieRepository } from "@/app/repositories/CategorieRepository";
-import { DepenseRepository } from "@/app/repositories/DepenseRepository";
-import { LimiteDepenseRepository } from "@/app/repositories/LimiteDepenseRepository";
 import { Categorie } from "@/models/Categorie";
+import { CategorieRepository } from "@/repositories/CategorieRepository";
+import { DepenseRepository } from "@/repositories/DepenseRepository";
+import { LimiteDepenseRepository } from "@/repositories/LimiteDepenseRepository";
 import { useDepenseStore } from "@/store/depenseStore";
 import { useLimiteDepenseStore } from "@/store/limiteDepenseStore";
 import { create } from "zustand";
