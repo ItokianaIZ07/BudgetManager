@@ -3,6 +3,7 @@ import { Categorie } from "@/models/Categorie";
 import { LimiteDepense } from "@/models/LimiteDepense";
 import { useCategorieStore } from "@/store/categorieStore";
 import { useLimiteDepenseStore } from "@/store/limiteDepenseStore";
+import { useSQLiteContext } from "expo-sqlite";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -33,23 +34,24 @@ export default function FormModal({
   setCategorie,
   onRefresh,
 }: FormModalProps) {
+  const db = useSQLiteContext();
   const [nom, setNom] = useState<string>("");
   const [limite, setLimite] = useState<string>("");
 
   const saveCategory = async (category: Categorie) => {
     const idInserted = await useCategorieStore
       .getState()
-      .createCategorie(category);
+      .createCategorie(db, category);
     const limiteDepense: LimiteDepense = {
       idCategorie: idInserted,
       limite: category.limite!,
     };
-    await useLimiteDepenseStore.getState().createLimite(limiteDepense);
+    await useLimiteDepenseStore.getState().createLimite(db, limiteDepense);
   };
 
   const updateCategory = async (category: Categorie) => {
-    await useCategorieStore.getState().updateCategorie(category);
-    await useLimiteDepenseStore.getState().updateLimite({
+    await useCategorieStore.getState().updateCategorie(db, category);
+    await useLimiteDepenseStore.getState().updateLimite(db, {
       id: undefined,
       idCategorie: category.id!,
       limite: category.limite!,

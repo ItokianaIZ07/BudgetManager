@@ -39,7 +39,7 @@ export default function AboutScreen() {
           <Text style={styles.cardTitle}>Développeur</Text>
           <View style={styles.imageWrapper}>
             <Image
-              source={require("../../../assets/images/dev.jpg")}
+              source={require("@/assets/images/dev.jpg")}
               style={styles.developerImage}
               resizeMode="cover"
             />

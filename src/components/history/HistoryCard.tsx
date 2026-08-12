@@ -8,7 +8,7 @@ import Animated, {
     useSharedValue,
     withTiming,
 } from "react-native-reanimated";
-import { scheduleOnRN } from "react-native-worklets";
+import { runOnJS } from "react-native-worklets";
 import DeleteButton from "./DeleteButton";
 
 interface HistoryCardProps {
@@ -48,7 +48,7 @@ export default function HistoryCard({ item, onDelete }: HistoryCardProps) {
       },
       (finished) => {
         if (finished) {
-          scheduleOnRN(onDelete, item.id!);
+          runOnJS(onDelete)(item.id!);
         }
       },
     );

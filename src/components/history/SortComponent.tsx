@@ -1,14 +1,15 @@
 import { AppTheme } from "@/constants/theme";
 import { useCategorieStore } from "@/store/categorieStore";
+import { useSQLiteContext } from "expo-sqlite";
 import { useEffect, useState } from "react";
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 interface SortProps {
@@ -20,11 +21,12 @@ export default function SortComponent({ onSort, onInput }: SortProps) {
   const [filtre, setFiltre] = useState<number>(-1);
   const [options, setOptions] = useState<any[]>([]);
   const categories = useCategorieStore((state) => state.categories);
+  const db = useSQLiteContext();
 
   useEffect(() => {
     setFiltre(-1);
     if (!categories || categories.length === 0) {
-      useCategorieStore.getState().fetchCategories();
+      useCategorieStore.getState().fetchCategories(db);
     }
     const opt = [{ id: -1, libelle: "Toutes" }, ...(categories || [])];
     setOptions(opt);

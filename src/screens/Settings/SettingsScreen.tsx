@@ -1,38 +1,48 @@
 import { AppTheme } from "@/constants/theme";
-import { initDatabase, initializeData, resetDatabase } from "@/database/sqlite";
+import { initDatabase, resetDatabase } from "@/database/sqlite";
 import { useCategorieStore } from "@/store/categorieStore";
 import { useDepenseStore } from "@/store/depenseStore";
 import { useLimiteDepenseStore } from "@/store/limiteDepenseStore";
 import { useStatsStore } from "@/store/statsStore";
 import { getCurrentDateParts } from "@/utils/util";
 import { router } from "expo-router";
+import { useSQLiteContext } from "expo-sqlite";
 import {
-    Alert,
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function SettingsScreen() {
+  const db = useSQLiteContext();
   const anneeActuelle = new Date().getFullYear();
   const deleteAllStore = useStatsStore((state) => state.deleteAll);
+
   const clearData = () => {
     Alert.alert(
       "Confirmer la suppression",
-      "Es-tu sûr de vouloir supprimer cette dépense ?\nLes dépenses supprimer ne pourrant plus être récuperé !",
+      "Es-tu sûr de vouloir supprimer toutes les dépenses ?\nLes dépenses supprimées ne pourront plus être récupérées !",
       [
         { text: "Annuler", style: "cancel" },
         {
           text: "Supprimer",
           style: "destructive",
           onPress: async () => {
-            await useDepenseStore.getState().deleteAll();
-            deleteAllStore();
-            router.push("/");
+            try {
+              await useDepenseStore.getState().deleteAll(db);
+              deleteAllStore();
+              router.push("/" as any);
+            } catch (error) {
+              console.error(
+                "Erreur lors de la suppression des dépenses :",
+                error,
+              );
+            }
           },
         },
       ],
@@ -41,27 +51,30 @@ export default function SettingsScreen() {
 
   const reconfigApp = () => {
     Alert.alert(
-      "Confirmer la suppression",
-      "Es-tu sûr de vouloir restaurer les configurations de base ?\nToutes vos modifications seront perdus !",
+      "Confirmer la restauration",
+      "Es-tu sûr de vouloir restaurer les configurations de base ?\nToutes vos modifications seront perdues !",
       [
         { text: "Annuler", style: "cancel" },
         {
-          text: "Supprimer",
+          text: "Restaurer",
           style: "destructive",
           onPress: async () => {
-            deleteAllStore();
+            try {
+              deleteAllStore();
 
-            await resetDatabase();
-            await initDatabase();
-            await initializeData();
+              await resetDatabase(db);
+              await initDatabase(db);
 
-            await useCategorieStore.getState().fetchCategories();
-            await useLimiteDepenseStore.getState().fetchLimites();
-            await useDepenseStore.getState().fetchDepenses();
-            const { mois, annee } = getCurrentDateParts();
-            await useStatsStore.getState().fetchDepenses(mois, annee);
+              await useCategorieStore.getState().fetchCategories(db);
+              await useLimiteDepenseStore.getState().fetchLimites(db);
+              await useDepenseStore.getState().fetchDepenses(db);
+              const { mois, annee } = getCurrentDateParts();
+              await useStatsStore.getState().fetchDepenses(db, mois, annee);
 
-            router.push("/");
+              router.push("/" as any);
+            } catch (error) {
+              console.error("Erreur lors de la réinitialisation :", error);
+            }
           },
         },
       ],
@@ -73,9 +86,8 @@ export default function SettingsScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      {/* <Header /> */}
       <View style={styles.cardContainer}>
-        <Text style={styles.label}>Préferences</Text>
+        <Text style={styles.label}>Préférences</Text>
         <View style={styles.card}>
           <TouchableOpacity
             style={styles.button}
@@ -104,6 +116,7 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         </View>
       </View>
+
       <View style={styles.cardContainer}>
         <Text style={styles.label}>Données & Sécurité</Text>
         <View style={styles.card}>
@@ -118,6 +131,7 @@ export default function SettingsScreen() {
               />
             </View>
           </TouchableOpacity>
+
           <TouchableOpacity onPress={reconfigApp} style={styles.button}>
             <View style={styles.action}>
               <Text style={styles.buttonLabel}>
@@ -131,6 +145,7 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         </View>
       </View>
+
       <View style={styles.footer}>
         <Text style={styles.footerLabel}>
           &copy; {anneeActuelle} - Budget Manager by ItokianaIZ07. Compte bien,

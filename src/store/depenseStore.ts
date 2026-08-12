@@ -1,5 +1,6 @@
 import { Depense } from "@/models/Depense";
 import { DepenseRepository } from "@/repositories/DepenseRepository";
+import type { SQLiteDatabase } from "expo-sqlite";
 import { create } from "zustand";
 
 interface DepenseStoreState {
@@ -7,13 +8,19 @@ interface DepenseStoreState {
   loading: boolean;
   error: string | null;
   setDepenses: (depenses: Depense[]) => void;
-  fetchDepenses: () => Promise<void>;
-  fetchDepensesParCategorie: (categorieId: number) => Promise<void>;
-  searchByKeyword: (keyword: string) => Promise<void>;
-  createDepense: (depense: Omit<Depense, "id">) => Promise<number>;
-  updateDepense: (depense: Depense) => Promise<void>;
-  deleteDepense: (id: number) => Promise<void>;
-  deleteAll: () => Promise<void>;
+  fetchDepenses: (db: SQLiteDatabase) => Promise<void>;
+  fetchDepensesParCategorie: (
+    db: SQLiteDatabase,
+    categorieId: number,
+  ) => Promise<void>;
+  searchByKeyword: (db: SQLiteDatabase, keyword: string) => Promise<void>;
+  createDepense: (
+    db: SQLiteDatabase,
+    depense: Omit<Depense, "id">,
+  ) => Promise<number>;
+  updateDepense: (db: SQLiteDatabase, depense: Depense) => Promise<void>;
+  deleteDepense: (db: SQLiteDatabase, id: number) => Promise<void>;
+  deleteAll: (db: SQLiteDatabase) => Promise<void>;
 }
 
 export const useDepenseStore = create<DepenseStoreState>((set, get) => ({
@@ -23,11 +30,11 @@ export const useDepenseStore = create<DepenseStoreState>((set, get) => ({
 
   setDepenses: (depenses) => set({ depenses }),
 
-  fetchDepenses: async () => {
+  fetchDepenses: async (db) => {
     set({ loading: true, error: null });
 
     try {
-      const depenses = await DepenseRepository.recupererToutes();
+      const depenses = await DepenseRepository.recupererToutes(db);
       set({ depenses, loading: false });
     } catch (error) {
       console.error("Erreur lors du chargement des dépenses :", error);
@@ -35,11 +42,13 @@ export const useDepenseStore = create<DepenseStoreState>((set, get) => ({
     }
   },
 
-  fetchDepensesParCategorie: async (categorieId: number) => {
+  fetchDepensesParCategorie: async (db, categorieId) => {
     set({ loading: true, error: null });
     try {
-      const donnees =
-        await DepenseRepository.recupererParCategorie(categorieId);
+      const donnees = await DepenseRepository.recupererParCategorie(
+        db,
+        categorieId,
+      );
       set({ depenses: donnees, loading: false });
     } catch (error) {
       console.error(
@@ -50,10 +59,10 @@ export const useDepenseStore = create<DepenseStoreState>((set, get) => ({
     }
   },
 
-  searchByKeyword: async (keyword: string) => {
+  searchByKeyword: async (db, keyword: string) => {
     set({ loading: true, error: null });
     try {
-      const donnees = await DepenseRepository.rechercherParMotCle(keyword);
+      const donnees = await DepenseRepository.rechercherParMotCle(db, keyword);
       set({ depenses: donnees, loading: false });
     } catch (error) {
       console.error("Erreur lors de la recherche des dépenses :", error);
@@ -61,10 +70,10 @@ export const useDepenseStore = create<DepenseStoreState>((set, get) => ({
     }
   },
 
-  createDepense: async (depense) => {
+  createDepense: async (db, depense) => {
     try {
-      const id = await DepenseRepository.ajouter(depense);
-      await get().fetchDepenses();
+      const id = await DepenseRepository.ajouter(db, depense);
+      await get().fetchDepenses(db);
       return id;
     } catch (error) {
       console.error("Erreur lors de la création de la dépense :", error);
@@ -72,7 +81,7 @@ export const useDepenseStore = create<DepenseStoreState>((set, get) => ({
     }
   },
 
-  updateDepense: async (depense) => {
+  updateDepense: async (db, depense) => {
     if (!depense.id) {
       throw new Error(
         "Impossible de mettre à jour une dépense sans identifiant",
@@ -80,26 +89,26 @@ export const useDepenseStore = create<DepenseStoreState>((set, get) => ({
     }
 
     try {
-      await DepenseRepository.mettreAJour(depense);
-      await get().fetchDepenses();
+      await DepenseRepository.mettreAJour(db, depense);
+      await get().fetchDepenses(db);
     } catch (error) {
       console.error("Erreur lors de la mise à jour de la dépense :", error);
       throw error;
     }
   },
 
-  deleteDepense: async (id) => {
+  deleteDepense: async (db, id) => {
     try {
-      await DepenseRepository.supprimerDepense(id);
-      await get().fetchDepenses();
+      await DepenseRepository.supprimerDepense(db, id);
+      await get().fetchDepenses(db);
     } catch (error) {
       console.error("Erreur lors de la suppression de la dépense :", error);
       throw error;
     }
   },
-  deleteAll: async () => {
+  deleteAll: async (db) => {
     try {
-      await DepenseRepository.supprimerTout();
+      await DepenseRepository.supprimerTout(db);
       set({ depenses: [] });
     } catch (error) {
       console.error(

@@ -1,36 +1,42 @@
-import { db } from "@/database/sqlite"
 import { Categorie } from "@/models/Categorie";
-import { LimiteDepenseRepository } from "./LimiteDepenseRepository";
+import type { SQLiteDatabase } from "expo-sqlite";
 
 export const CategorieRepository = {
-    recupererTous: ()=>{
-        const requete = "SELECT c.id, c.libelle, l.limite FROM categorie c JOIN limite_depense l ON l.categorie_id = c.id ORDER BY c.id ASC";
-        const response = db.getAllSync<Categorie>(requete);
+  recupererTous: async (db: SQLiteDatabase) => {
+    const requete =
+      "SELECT c.id, c.libelle, l.limite FROM categorie c JOIN limite_depense l ON l.categorie_id = c.id ORDER BY c.id ASC";
+    const response = await db.getAllAsync<Categorie>(requete);
 
-        return response;
-    },
+    return response;
+  },
 
-    supprimerCategorie: async (id: number)=>{
-        const requete = "DELETE FROM categorie WHERE id=?";
-        await db.runAsync(requete, [id]);
-    },
+  supprimerCategorie: async (db: SQLiteDatabase, id: number) => {
+    const requete = "DELETE FROM categorie WHERE id=?";
+    await db.runAsync(requete, [id]);
+  },
 
-    sauvegarderCategorie: async (categorie: Omit<Categorie, "id">)=>{
-        const requete = "INSERT INTO categorie(libelle) VALUES(?)";
-        const resultat = await db.runAsync(requete, [categorie.libelle]);
-        
-        return resultat.lastInsertRowId;
-    },
+  sauvegarderCategorie: async (
+    db: SQLiteDatabase,
+    categorie: Omit<Categorie, "id">,
+  ) => {
+    const requete = "INSERT INTO categorie(libelle) VALUES(?)";
+    const resultat = await db.runAsync(requete, [categorie.libelle]);
 
-    mettreAJourCategorie: async (categorie: Categorie)=>{
-        const requete = "UPDATE categorie SET libelle = ? WHERE id = ?";
-        await db.runAsync(requete, [categorie.libelle, categorie.id!]);
-    },
+    return resultat.lastInsertRowId;
+  },
 
-    recupererParId: async (id: number) : Promise<Categorie|null> =>{
-        const requete = "SELECT * FROM categorie WHERE id = ?";
-        const response = await db.getFirstAsync<Categorie>(requete, [id]);
+  mettreAJourCategorie: async (db: SQLiteDatabase, categorie: Categorie) => {
+    const requete = "UPDATE categorie SET libelle = ? WHERE id = ?";
+    await db.runAsync(requete, [categorie.libelle, categorie.id!]);
+  },
 
-        return response;
-    }
-}
+  recupererParId: async (
+    db: SQLiteDatabase,
+    id: number,
+  ): Promise<Categorie | null> => {
+    const requete = "SELECT * FROM categorie WHERE id = ?";
+    const response = await db.getFirstAsync<Categorie>(requete, [id]);
+
+    return response;
+  },
+};

@@ -1,4 +1,5 @@
 import { DepenseRepository } from "@/repositories/DepenseRepository";
+import type { SQLiteDatabase } from "expo-sqlite";
 import { create } from "zustand";
 
 interface StatsStore {
@@ -9,9 +10,21 @@ interface StatsStore {
   updateDepense: (depense: any) => void;
   deleteDepense: (id: number) => void;
   deleteAll: () => void;
-  fetchDepenses: (mois: string, annee: string) => Promise<void>;
-  fetchTotalForMonth: (mois: string, annee: string) => Promise<number>;
-  getDepensesParCategorie: (mois: string, annee: string) => Promise<any[]>;
+  fetchDepenses: (
+    db: SQLiteDatabase,
+    mois: string,
+    annee: string,
+  ) => Promise<void>;
+  fetchTotalForMonth: (
+    db: SQLiteDatabase,
+    mois: string,
+    annee: string,
+  ) => Promise<number>;
+  getDepensesParCategorie: (
+    db: SQLiteDatabase,
+    mois: string,
+    annee: string,
+  ) => Promise<any[]>;
 }
 
 export const useStatsStore = create<StatsStore>((set) => ({
@@ -38,9 +51,10 @@ export const useStatsStore = create<StatsStore>((set) => ({
       depenses: [],
     }));
   },
-  fetchDepenses: async (mois: string, annee: string) => {
+  fetchDepenses: async (db, mois: string, annee: string) => {
     try {
       const data = await DepenseRepository.recupererSommeMontantParCategorie(
+        db,
         mois,
         annee,
       );
@@ -49,9 +63,10 @@ export const useStatsStore = create<StatsStore>((set) => ({
       console.error("Erreur lors de la récupération des agrégats :", error);
     }
   },
-  fetchTotalForMonth: async (mois: string, annee: string) => {
+  fetchTotalForMonth: async (db, mois: string, annee: string) => {
     try {
       const resultat = await DepenseRepository.recupererSommeParMoisAnnee(
+        db,
         mois,
         annee,
       );
@@ -61,10 +76,11 @@ export const useStatsStore = create<StatsStore>((set) => ({
       return 0;
     }
   },
-  getDepensesParCategorie: async (mois: string, annee: string) => {
+  getDepensesParCategorie: async (db, mois: string, annee: string) => {
     try {
       const data =
         await DepenseRepository.recupererDepensesParCategorieMoisAnnee(
+          db,
           mois,
           annee,
         );

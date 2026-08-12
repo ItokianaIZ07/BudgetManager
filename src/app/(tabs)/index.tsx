@@ -7,77 +7,128 @@ import { useDepenseStore } from "@/store/depenseStore";
 import { useLimiteDepenseStore } from "@/store/limiteDepenseStore";
 import { useStatsStore } from "@/store/statsStore";
 import { router } from "expo-router";
+import { useSQLiteContext } from "expo-sqlite";
 import { useEffect, useMemo, useState } from "react";
 import {
-    ActivityIndicator,
-    Button,
-    FlatList,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    Text,
-    View,
+  ActivityIndicator,
+  Button,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
-import { getCurrentDateParts, Util } from "../utils/util";
+import { getCurrentDateParts, Util } from "../../utils/util";
 
 export default function PageAccueil() {
-  const [estPret, setEstPret] = useState<boolean>(false);
+  console.log("🔵 PageAccueil render");
+  const db = useSQLiteContext();
+
+  const [estPret, setEstPret] = useState(false);
+  const [erreur, setErreur] = useState<string | null>(null);
 
   const { mois, annee } = getCurrentDateParts();
 
   const depenses = useDepenseStore((state) => state.depenses);
   const fetchDepenses = useDepenseStore((state) => state.fetchDepenses);
   const deleteDepense = useDepenseStore((state) => state.deleteDepense);
-  const setDepensesStats = useStatsStore((state) => state.setDepenses);
 
   const total = useMemo(() => {
     return depenses.reduce((somme, item) => somme + item.montant, 0);
   }, [depenses]);
 
-  const rechargeDepense = async (id: number) => {
-    await deleteDepense(id);
-    await initialiserDonneeDepense();
-  };
+  async function initialiserDonneeDepense() {
+    await useStatsStore.getState().fetchDepenses(db, mois, annee);
+  }
 
   async function chargerDepenses() {
-    await fetchDepenses();
-    // Initialiser les autres stores pour éviter des requêtes répétées
-    await useCategorieStore.getState().fetchCategories();
-    await useLimiteDepenseStore.getState().fetchLimites();
+    await fetchDepenses(db);
+    await useCategorieStore.getState().fetchCategories(db);
+    await useLimiteDepenseStore.getState().fetchLimites(db);
   }
 
   async function supprimerDepense(id: number) {
-    await rechargeDepense(id);
-  }
-
-  async function initialiserDonneeDepense() {
-    await useStatsStore.getState().fetchDepenses(mois, annee);
+    try {
+      await deleteDepense(db, id);
+      await initialiserDonneeDepense();
+    } catch (error) {
+      console.error("Erreur lors de la suppression de la dépense :", error);
+    }
   }
 
   useEffect(() => {
+    let estAnnule = false;
+
     const preparerApplication = async () => {
       try {
-        await initializeApplication(async () => {
+        console.log("Préparation de l'application...");
+        setErreur(null);
+        setEstPret(false);
+
+        // 1. Initialisation éventuelle des modules globaux
+        await initializeApplication(db, async () => {
           await initialiserDonneeDepense();
         });
+
+        // 2. Chargement séquentiel des données dans les stores Zustand
+        console.log("Chargement des dépenses et métadonnées...");
         await chargerDepenses();
-      } finally {
-        setEstPret(true);
+        console.log("Dépenses chargées avec succès.");
+
+        if (!estAnnule) {
+          setEstPret(true);
+          console.log("Application initialisée et prête !");
+        }
+      } catch (error) {
+        console.error("Erreur lors de l'initialisation :", error);
+
+        if (!estAnnule) {
+          setErreur(
+            "Une erreur est survenue lors du démarrage de l'application.",
+          );
+        }
       }
     };
+
     preparerApplication();
-  }, []);
+
+    return () => {
+      estAnnule = true;
+    };
+  }, [db]);
+
+  if (erreur) {
+    return (
+      <View style={styles.centre}>
+        <Text style={styles.errorTitle}>
+          Impossible de démarrer l'application
+        </Text>
+        <Text style={styles.errorText}>{erreur}</Text>
+        <Button
+          title="Réessayer"
+          onPress={() => {
+            setErreur(null);
+            setEstPret(false);
+            router.replace("/" as any);
+          }}
+        />
+      </View>
+    );
+  }
 
   if (!estPret) {
     return (
       <View style={styles.centre}>
         <ActivityIndicator size="large" color={AppTheme.colors.primary} />
         <Text style={styles.loadingText}>
-          Initialisation de la base de données...
+          Initialisation de l'application...
         </Text>
       </View>
     );
   }
+
+  console.log("🟢 Rendu principal de PageAccueil");
 
   return (
     <KeyboardAvoidingView
@@ -85,26 +136,28 @@ export default function PageAccueil() {
       style={styles.container}
     >
       <Header />
+
       <FlatList
         contentContainerStyle={styles.listContent}
-        ListHeaderComponent={() => (
+        ListHeaderComponent={
           <View style={styles.header}>
             <View style={styles.cardStat}>
               <Text style={styles.title}>Total du mois</Text>
               <Text style={styles.valeur}>{Util.formatNumber(total)} Ar</Text>
             </View>
+
             <View style={styles.cardStatSecondary}>
               <Text style={styles.title}>Transactions</Text>
               <Text style={styles.valeur}>{depenses.length}</Text>
             </View>
           </View>
-        )}
+        }
         data={depenses}
         keyExtractor={(item) => item.id!.toString()}
         renderItem={({ item }) => (
           <HistoryCard item={item} onDelete={supprimerDepense} />
         )}
-        ListEmptyComponent={() => (
+        ListEmptyComponent={
           <View style={styles.emptyComponent}>
             <Text style={styles.label}>Aucune dépense enregistrée</Text>
             <Button
@@ -112,7 +165,7 @@ export default function PageAccueil() {
               onPress={() => router.push("/depense")}
             />
           </View>
-        )}
+        }
       />
     </KeyboardAvoidingView>
   );
@@ -150,11 +203,26 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    padding: 24,
     backgroundColor: AppTheme.colors.background,
   },
   loadingText: {
     color: AppTheme.colors.textMuted,
-    marginTop: 8,
+    marginTop: 12,
+    textAlign: "center",
+  },
+  errorTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: AppTheme.colors.text,
+    textAlign: "center",
+    marginBottom: 8,
+  },
+  errorText: {
+    fontSize: 14,
+    color: AppTheme.colors.textMuted,
+    textAlign: "center",
+    marginBottom: 20,
   },
   emptyComponent: {
     justifyContent: "center",

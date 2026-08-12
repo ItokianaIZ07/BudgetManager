@@ -6,27 +6,29 @@ import { useCategorieStore } from "@/store/categorieStore";
 import { useLimiteDepenseStore } from "@/store/limiteDepenseStore";
 import { useStatsStore } from "@/store/statsStore";
 import { getCurrentDateParts } from "@/utils/util";
+import { useSQLiteContext } from "expo-sqlite";
 import { useState } from "react";
 import {
-    Alert,
-    FlatList,
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  FlatList,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function CategoryScreen() {
+  const db = useSQLiteContext();
   const categories = useCategorieStore((state) => state.categories);
   const [visible, setVisible] = useState<boolean>(false);
   const [categorieEdited, setCategorieEdited] = useState<Categorie>();
   const [mode, setMode] = useState<string>("add");
 
   const loadCategories = () => {
-    useCategorieStore.getState().fetchCategories();
+    useCategorieStore.getState().fetchCategories(db);
   };
 
   const handleDelete = (id: number) => {
@@ -40,12 +42,12 @@ export default function CategoryScreen() {
           style: "destructive",
           onPress: async () => {
             try {
-              await useCategorieStore.getState().deleteCategorie(id);
-              await useStatsStore.getState().deleteDepense(id);
-              await useLimiteDepenseStore.getState().fetchLimites();
-              await useCategorieStore.getState().fetchCategories();
+              await useCategorieStore.getState().deleteCategorie(db, id);
+              useStatsStore.getState().deleteDepense(id);
+              await useLimiteDepenseStore.getState().fetchLimites(db);
+              await useCategorieStore.getState().fetchCategories(db);
               const { mois, annee } = getCurrentDateParts();
-              await useStatsStore.getState().fetchDepenses(mois, annee);
+              await useStatsStore.getState().fetchDepenses(db, mois, annee);
             } catch (error) {
               console.error(
                 "Erreur lors de la suppression de la catégorie :",

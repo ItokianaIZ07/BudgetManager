@@ -6,18 +6,20 @@ import { useDepenseStore } from "@/store/depenseStore";
 import { useStatsStore } from "@/store/statsStore";
 import { getCurrentDateParts } from "@/utils/util";
 import { router } from "expo-router";
+import { useSQLiteContext } from "expo-sqlite";
 import { useEffect } from "react";
 import {
-    Button,
-    FlatList,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    Text,
-    View,
+  Button,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 
 export default function HistoryScreen() {
+  const db = useSQLiteContext();
   const depenses = useDepenseStore((state) => state.depenses);
   const fetchDepenses = useDepenseStore((state) => state.fetchDepenses);
   const deleteDepense = useDepenseStore((state) => state.deleteDepense);
@@ -26,16 +28,16 @@ export default function HistoryScreen() {
   const { mois, annee } = getCurrentDateParts();
 
   async function chargerDepenses() {
-    await fetchDepenses();
+    await fetchDepenses(db);
   }
 
   async function supprimerDepense(id: number) {
-    await deleteDepense(id);
+    await deleteDepense(db, id);
     await initialiserDonneeDepense();
   }
 
   async function sortByCategoryId(id: number) {
-    await useDepenseStore.getState().fetchDepensesParCategorie(id);
+    await useDepenseStore.getState().fetchDepensesParCategorie(db, id);
   }
 
   const sortById = async (id: number) => {
@@ -51,11 +53,11 @@ export default function HistoryScreen() {
       await chargerDepenses();
       return;
     }
-    await useDepenseStore.getState().searchByKeyword(keyword);
+    await useDepenseStore.getState().searchByKeyword(db, keyword);
   };
 
   async function initialiserDonneeDepense() {
-    await useStatsStore.getState().fetchDepenses(mois, annee);
+    await useStatsStore.getState().fetchDepenses(db, mois, annee);
   }
 
   useEffect(() => {

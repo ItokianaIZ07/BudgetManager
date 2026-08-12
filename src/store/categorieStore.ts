@@ -4,6 +4,7 @@ import { DepenseRepository } from "@/repositories/DepenseRepository";
 import { LimiteDepenseRepository } from "@/repositories/LimiteDepenseRepository";
 import { useDepenseStore } from "@/store/depenseStore";
 import { useLimiteDepenseStore } from "@/store/limiteDepenseStore";
+import type { SQLiteDatabase } from "expo-sqlite";
 import { create } from "zustand";
 
 interface CategorieStoreState {
@@ -11,10 +12,13 @@ interface CategorieStoreState {
   loading: boolean;
   error: string | null;
   setCategories: (categories: Categorie[]) => void;
-  fetchCategories: () => Promise<void>;
-  createCategorie: (categorie: Omit<Categorie, "id">) => Promise<number>;
-  updateCategorie: (categorie: Categorie) => Promise<void>;
-  deleteCategorie: (id: number) => Promise<void>;
+  fetchCategories: (db: SQLiteDatabase) => Promise<void>;
+  createCategorie: (
+    db: SQLiteDatabase,
+    categorie: Omit<Categorie, "id">,
+  ) => Promise<number>;
+  updateCategorie: (db: SQLiteDatabase, categorie: Categorie) => Promise<void>;
+  deleteCategorie: (db: SQLiteDatabase, id: number) => Promise<void>;
 }
 
 export const useCategorieStore = create<CategorieStoreState>((set, get) => ({
@@ -24,10 +28,10 @@ export const useCategorieStore = create<CategorieStoreState>((set, get) => ({
 
   setCategories: (categories) => set({ categories }),
 
-  fetchCategories: async () => {
+  fetchCategories: async (db) => {
     set({ loading: true, error: null });
     try {
-      const categories = await CategorieRepository.recupererTous();
+      const categories = await CategorieRepository.recupererTous(db);
       set({ categories, loading: false });
     } catch (error) {
       console.error("Erreur lors du chargement des catégories :", error);
@@ -35,9 +39,9 @@ export const useCategorieStore = create<CategorieStoreState>((set, get) => ({
     }
   },
 
-  createCategorie: async (categorie) => {
+  createCategorie: async (db, categorie) => {
     try {
-      const id = await CategorieRepository.sauvegarderCategorie(categorie);
+      const id = await CategorieRepository.sauvegarderCategorie(db, categorie);
       set((state) => ({
         categories: [...state.categories, { ...categorie, id }],
       }));
@@ -48,10 +52,10 @@ export const useCategorieStore = create<CategorieStoreState>((set, get) => ({
     }
   },
 
-  updateCategorie: async (categorie) => {
+  updateCategorie: async (db, categorie) => {
     if (!categorie.id) throw new Error("ID manquant pour la mise à jour");
     try {
-      await CategorieRepository.mettreAJourCategorie(categorie);
+      await CategorieRepository.mettreAJourCategorie(db, categorie);
       set((state) => ({
         categories: state.categories.map((c) =>
           c.id === categorie.id ? categorie : c,
@@ -63,11 +67,11 @@ export const useCategorieStore = create<CategorieStoreState>((set, get) => ({
     }
   },
 
-  deleteCategorie: async (id) => {
+  deleteCategorie: async (db, id) => {
     try {
-      await DepenseRepository.supprimerParCategorie(id);
-      await LimiteDepenseRepository.supprimerParCategorie(id);
-      await CategorieRepository.supprimerCategorie(id);
+      await DepenseRepository.supprimerParCategorie(db, id);
+      await LimiteDepenseRepository.supprimerParCategorie(db, id);
+      await CategorieRepository.supprimerCategorie(db, id);
 
       const depenseStore = useDepenseStore.getState();
       depenseStore.setDepenses(
