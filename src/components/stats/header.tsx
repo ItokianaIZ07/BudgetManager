@@ -1,24 +1,22 @@
-import {
-    Util,
-    getCurrentDateParts,
-    getPreviousMonthParts,
-} from "@/app/utils/util";
 import { AppTheme } from "@/constants/theme";
 import { NotificationType } from "@/models/Notification";
 import { useStatsStore } from "@/store/statsStore";
+import { Util, getCurrentDateParts, getPreviousMonthParts } from "@/utils/util";
 import { router } from "expo-router";
+import { useSQLiteContext } from "expo-sqlite";
 import { useEffect, useMemo, useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, {
-    cancelAnimation,
-    useAnimatedStyle,
-    useSharedValue,
-    withRepeat,
-    withSequence,
-    withTiming,
+  cancelAnimation,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
 } from "react-native-reanimated";
 
 export default function StatHeader() {
+  const db = useSQLiteContext();
   const statsDepense = useStatsStore((state) => state.depenses);
   const [depensesParCategorieMoisActuel, setDepensesParCategorieMoisActuel] =
     useState<any[]>([]);
@@ -38,10 +36,10 @@ export default function StatHeader() {
       try {
         const depensesActuelles = await useStatsStore
           .getState()
-          .getDepensesParCategorie(mois, annee);
+          .getDepensesParCategorie(db, mois, annee);
         const depensesPrecedentes = await useStatsStore
           .getState()
-          .getDepensesParCategorie(moisPrecedent, anneePrecedent);
+          .getDepensesParCategorie(db, moisPrecedent, anneePrecedent);
 
         setDepensesParCategorieMoisActuel(depensesActuelles || []);
         setDepensesParCategorieMoisPrecedent(depensesPrecedentes || []);

@@ -1,35 +1,33 @@
-import {
-  StyleSheet,
-  View,
-  Image,
-  Text,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
 import { AppTheme } from "@/constants/theme";
 import { NotificationType } from "@/models/Notification";
 import { useStatsStore } from "@/store/statsStore";
-import { Util } from "@/app/utils/util";
-import { useEffect } from "react";
+import { Util } from "@/utils/util";
+import {
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
+} from "react-native";
 
 export default function Notification() {
   const notifications: NotificationType[] = [];
-  const depenses = useStatsStore(state=>state.depenses);
+  const depenses = useStatsStore((state) => state.depenses);
 
   const checkNotification = () => {
     for (let depense of depenses) {
       const consommation = depense.total / depense.limite;
-      const notif : NotificationType = {
+      const notif: NotificationType = {
         type: "alert",
-        content : ""
+        content: "",
       };
       if (consommation >= 0.8 && consommation < 1) {
         notif.content = `La consommation de la catégorie ${depense.categorie} a atteint plus de 80%.`;
       } else if (consommation == 1) {
         notif.content = `La consommation de la catégorie ${depense.categorie} a atteint la limite de ${Util.formatNumber(depense.limite)} Ar`;
-      }
-      else if (consommation > 1){
+      } else if (consommation > 1) {
         notif.content = `La consommation de la catégorie ${depense.categorie} a dépassé la limite de ${Util.formatNumber(depense.limite)} Ar`;
       }
       if (notif.content.trim() !== "") {
@@ -37,7 +35,7 @@ export default function Notification() {
       }
     }
     notifications.reverse();
-  }
+  };
 
   checkNotification();
 

@@ -1,5 +1,6 @@
-import { LimiteDepenseRepository } from "@/app/repositories/LimiteDepenseRepository";
 import { LimiteDepense } from "@/models/LimiteDepense";
+import { LimiteDepenseRepository } from "@/repositories/LimiteDepenseRepository";
+import type { SQLiteDatabase } from "expo-sqlite";
 import { create } from "zustand";
 
 interface LimiteDepenseStoreState {
@@ -7,10 +8,16 @@ interface LimiteDepenseStoreState {
   loading: boolean;
   error: string | null;
   setLimites: (limites: LimiteDepense[]) => void;
-  fetchLimites: () => Promise<void>;
-  createLimite: (limite: Omit<LimiteDepense, "id">) => Promise<number>;
-  updateLimite: (limite: LimiteDepense) => Promise<void>;
-  deleteParCategorie: (idCategorie: number) => Promise<void>;
+  fetchLimites: (db: SQLiteDatabase) => Promise<void>;
+  createLimite: (
+    db: SQLiteDatabase,
+    limite: Omit<LimiteDepense, "id">,
+  ) => Promise<number>;
+  updateLimite: (db: SQLiteDatabase, limite: LimiteDepense) => Promise<void>;
+  deleteParCategorie: (
+    db: SQLiteDatabase,
+    idCategorie: number,
+  ) => Promise<void>;
 }
 
 export const useLimiteDepenseStore = create<LimiteDepenseStoreState>((set) => ({
@@ -20,10 +27,10 @@ export const useLimiteDepenseStore = create<LimiteDepenseStoreState>((set) => ({
 
   setLimites: (limites) => set({ limites }),
 
-  fetchLimites: async () => {
+  fetchLimites: async (db) => {
     set({ loading: true, error: null });
     try {
-      const limites = await LimiteDepenseRepository.recuperTous();
+      const limites = await LimiteDepenseRepository.recuperTous(db);
       set({ limites, loading: false });
     } catch (error) {
       console.error("Erreur lors du chargement des limites :", error);
@@ -31,9 +38,9 @@ export const useLimiteDepenseStore = create<LimiteDepenseStoreState>((set) => ({
     }
   },
 
-  createLimite: async (limite) => {
+  createLimite: async (db, limite) => {
     try {
-      const id = await LimiteDepenseRepository.sauvegarderLimite(limite);
+      const id = await LimiteDepenseRepository.sauvegarderLimite(db, limite);
       set((state) => ({ limites: [...state.limites, { ...limite, id }] }));
       return id;
     } catch (error) {
@@ -42,11 +49,9 @@ export const useLimiteDepenseStore = create<LimiteDepenseStoreState>((set) => ({
     }
   },
 
-  updateLimite: async (limite) => {
+  updateLimite: async (db, limite) => {
     try {
-      // LimiteDepenseRepository.mettreAJourLimite attend un objet Categorie dans l'implémentation existante.
-      // On contourne en appelant directement la méthode prévue.
-      await LimiteDepenseRepository.mettreAJourLimite({
+      await LimiteDepenseRepository.mettreAJourLimite(db, {
         id: limite.idCategorie,
         libelle: "",
         limite: limite.limite,
@@ -60,9 +65,9 @@ export const useLimiteDepenseStore = create<LimiteDepenseStoreState>((set) => ({
     }
   },
 
-  deleteParCategorie: async (idCategorie) => {
+  deleteParCategorie: async (db, idCategorie) => {
     try {
-      await LimiteDepenseRepository.supprimerParCategorie(idCategorie);
+      await LimiteDepenseRepository.supprimerParCategorie(db, idCategorie);
       set((state) => ({
         limites: state.limites.filter((l) => l.idCategorie !== idCategorie),
       }));

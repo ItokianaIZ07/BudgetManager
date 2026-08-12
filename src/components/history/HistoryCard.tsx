@@ -1,14 +1,14 @@
-import { Util } from "@/app/utils/util";
 import { AppTheme } from "@/constants/theme";
 import { Depense } from "@/models/Depense";
 import { useCategorieStore } from "@/store/categorieStore";
+import { Util } from "@/utils/util";
 import { StyleSheet, Text, View } from "react-native";
 import Animated, {
     useAnimatedStyle,
     useSharedValue,
     withTiming,
 } from "react-native-reanimated";
-import { scheduleOnRN } from "react-native-worklets";
+import { runOnJS } from "react-native-worklets";
 import DeleteButton from "./DeleteButton";
 
 interface HistoryCardProps {
@@ -48,7 +48,7 @@ export default function HistoryCard({ item, onDelete }: HistoryCardProps) {
       },
       (finished) => {
         if (finished) {
-          scheduleOnRN(onDelete, item.id!);
+          runOnJS(onDelete)(item.id!);
         }
       },
     );

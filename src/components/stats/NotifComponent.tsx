@@ -1,8 +1,8 @@
-import { useCallback, useState } from "react";
-import { View, Text, StyleSheet, Image, ScrollView } from "react-native";
-import { Util } from "@/app/utils/util";
-import { useFocusEffect } from "expo-router";
 import { AppTheme } from "@/constants/theme";
+import { Util } from "@/utils/util";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
 interface NotifComponentProps {
   listDepense: any[];
@@ -20,8 +20,7 @@ export default function NotifComponent({ listDepense }: NotifComponentProps) {
         notif = `La consommation de la catégorie ${depense.categorie} a atteint plus de 80%.`;
       } else if (consommation == 1) {
         notif = `La consommation de la catégorie ${depense.categorie} a atteint la limite de ${Util.formatNumber(depense.limite)} Ar`;
-      }
-      else if (consommation > 1){
+      } else if (consommation > 1) {
         notif = `La consommation de la catégorie ${depense.categorie} a dépassé la limite de ${Util.formatNumber(depense.limite)} Ar`;
       }
       if (notif.trim() !== "") {
@@ -34,17 +33,19 @@ export default function NotifComponent({ listDepense }: NotifComponentProps) {
     }
   };
 
-  useFocusEffect(useCallback(() => {
-    checkLimit();
-  }, []));
+  useFocusEffect(
+    useCallback(() => {
+      checkLimit();
+    }, []),
+  );
 
   return (
     notification.trim() !== "" && (
       <View style={styles.alertContainer}>
         <View style={styles.labelContainer}>
-            <ScrollView>
-                <Text style={styles.label}>{notification}</Text>
-            </ScrollView>
+          <ScrollView>
+            <Text style={styles.label}>{notification}</Text>
+          </ScrollView>
         </View>
         <View>
           <Image
@@ -74,9 +75,9 @@ const styles = StyleSheet.create({
     height: 32,
   },
   labelContainer: {
-    width: "70%"
+    width: "70%",
   },
-  label:{
-    color: "#800000"
-  }
+  label: {
+    color: "#800000",
+  },
 });

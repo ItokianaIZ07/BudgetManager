@@ -1,8 +1,9 @@
-import { getMonth, Util } from "@/app/utils/util";
 import DepenseCategorieContainer from "@/components/stats/DepenseCategorieContainer";
 import { AppTheme } from "@/constants/theme";
 import { useStatsStore } from "@/store/statsStore";
+import { getMonth, Util } from "@/utils/util";
 import { useFocusEffect } from "expo-router";
+import { useSQLiteContext } from "expo-sqlite";
 import { useCallback, useState } from "react";
 import {
   Image,
@@ -14,6 +15,7 @@ import {
 } from "react-native";
 
 export default function StatisticsScreen() {
+  const db = useSQLiteContext();
   const [depenseMoisActuelle, setDepenseMoisActuelle] = useState<number>(0);
   const listDepense = useStatsStore((state) => state.depenses);
 
@@ -24,7 +26,7 @@ export default function StatisticsScreen() {
   const getDepenseDuMois = async () => {
     const montant = await useStatsStore
       .getState()
-      .fetchTotalForMonth(mois, annee);
+      .fetchTotalForMonth(db, mois, annee);
     setDepenseMoisActuelle(montant);
   };
 

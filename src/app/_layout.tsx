@@ -1,18 +1,32 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { Slot } from 'expo-router';
+import { SQLiteProvider } from 'expo-sqlite';
+import React, { Suspense } from 'react';
+import { ActivityIndicator, View, useColorScheme } from 'react-native';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+import { initDatabase } from '@/database/sqlite';
 
-SplashScreen.preventAutoHideAsync();
+function LoadingFallback() {
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <ActivityIndicator size="large" />
+    </View>
+  );
+}
 
-export default function TabLayout() {
+export default function RootLayout() {
   const colorScheme = useColorScheme();
+
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
+      <Suspense fallback={<LoadingFallback />}>
+        <SQLiteProvider
+          databaseName="budget_manager.db"
+          onInit={initDatabase}
+        >
+          <Slot />
+        </SQLiteProvider>
+      </Suspense>
     </ThemeProvider>
   );
 }

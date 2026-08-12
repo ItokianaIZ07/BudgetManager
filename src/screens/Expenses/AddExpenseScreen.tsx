@@ -1,10 +1,11 @@
-import { getCurrentDateParts } from "@/app/utils/util";
 import Header from "@/components/header";
 import { AppTheme } from "@/constants/theme";
 import { Depense } from "@/models/Depense";
 import { useCategorieStore } from "@/store/categorieStore";
 import { useDepenseStore } from "@/store/depenseStore";
 import { useStatsStore } from "@/store/statsStore";
+import { getCurrentDateParts } from "@/utils/util";
+import { useSQLiteContext } from "expo-sqlite";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -19,6 +20,7 @@ import {
 } from "react-native";
 
 export default function AddExpenseScreen() {
+  const db = useSQLiteContext();
   const [montant, setMontant] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [categorieId, setCategorieId] = useState<number>(1);
@@ -68,8 +70,8 @@ export default function AddExpenseScreen() {
       date: new Date().toISOString().split("T")[0],
     };
 
-    await useDepenseStore.getState().createDepense(depense);
-    await useStatsStore.getState().fetchDepenses(mois, annee);
+    await useDepenseStore.getState().createDepense(db, depense);
+    await useStatsStore.getState().fetchDepenses(db, mois, annee);
     Alert.alert("Votre dépense a bien été sauvegarder");
     resetChamp();
   };
@@ -80,9 +82,8 @@ export default function AddExpenseScreen() {
   }, []);
 
   useEffect(() => {
-    // si pas encore chargé, récupérer depuis repository via le store
     if (!categories || categories.length === 0) {
-      useCategorieStore.getState().fetchCategories();
+      useCategorieStore.getState().fetchCategories(db);
     }
   }, []);
 

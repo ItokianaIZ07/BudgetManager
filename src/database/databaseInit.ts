@@ -1,28 +1,23 @@
-import {
-    initDatabase,
-    initializeData,
-    isInitalized as isDatabaseInitialized,
-} from "./sqlite";
+import * as SQLite from "expo-sqlite";
 
-export let isInitalized = false;
+export let isInitialized = false;
 
 export const initializeApplication = async (
-  onReady?: () => Promise<void>,
+  db: SQLite.SQLiteDatabase,
+  onReady?: () => Promise<void>
 ): Promise<void> => {
   try {
-    await initDatabase();
-
-    if (isDatabaseInitialized() === "false") {
-      await initializeData();
-    }
+    console.log("Initialisation des configurations de l'application...");
 
     if (onReady) {
+      console.log("Exécution de la méthode onReady...");
       await onReady();
+      console.log("Application prête !");
     }
 
-    isInitalized = true;
+    isInitialized = true;
   } catch (error) {
-    console.error("Erreur au chargement :", error);
-    isInitalized = false;
+    console.error("Erreur lors de l'initialisation de l'application :", error);
+    isInitialized = false;
   }
 };
