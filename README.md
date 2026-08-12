@@ -10,7 +10,7 @@ Budget Manager est une application mobile Android de gestion de finances personn
 
 ### 1. Gestion des Dépenses
 
-* **Saisie des transactions :** Enregistrement rapide d'une dépense avec montant, date, catégorie associée et note descriptive.
+* **Saisie des transactions :** Enregistrement rapide d'une dépense avec montant, catégorie associée et note descriptive.
 * **Historique complet :** Consultation, recherche et filtrage de l'ensemble des dépenses passées.
 
 ### 2. Gestion des Catégories et Limites Budgétaires
@@ -20,7 +20,6 @@ Budget Manager est une application mobile Android de gestion de finances personn
 
 ### 3. Statistiques et Analyses
 
-* **Répartition visuelle :** Graphiques et indicateurs permettant de visualiser la répartition des dépenses par catégorie.
 * **Suivi budgétaire :** Calcul en temps réel du pourcentage du budget consommé par rapport aux plafonds fixés.
 
 ### 4. Alertes et Notifications
@@ -83,9 +82,6 @@ npx expo start
 * **Framework Mobile :** React Native avec Expo Router (File-based Routing).
 * **Base de Données :** SQLite via `expo-sqlite` (gestion de la persistance locale et requêtes optimisées).
 * **Gestion d'État :** Zustand.
-* **Thématisation & Composants :** React Native Paper / Tailwind CSS (NativeWind).
-* **Notifications :** `expo-notifications`.
-
 ---
 
 ## Compilation de la Version Release (APK)
