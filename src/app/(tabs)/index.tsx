@@ -22,7 +22,7 @@ import {
 import { getCurrentDateParts, Util } from "../../utils/util";
 
 export default function PageAccueil() {
-  console.log("🔵 PageAccueil render");
+  console.log(".PageAccueil render");
   const db = useSQLiteContext();
 
   const [estPret, setEstPret] = useState(false);
@@ -66,12 +66,12 @@ export default function PageAccueil() {
         setErreur(null);
         setEstPret(false);
 
-        // 1. Initialisation éventuelle des modules globaux
+        // Initialisation éventuelle des modules globaux
         await initializeApplication(db, async () => {
           await initialiserDonneeDepense();
         });
 
-        // 2. Chargement séquentiel des données dans les stores Zustand
+        // Chargement séquentiel des données dans les stores Zustand
         console.log("Chargement des dépenses et métadonnées...");
         await chargerDepenses();
         console.log("Dépenses chargées avec succès.");
@@ -128,7 +128,7 @@ export default function PageAccueil() {
     );
   }
 
-  console.log("🟢 Rendu principal de PageAccueil");
+  console.log(".Rendu principal de PageAccueil");
 
   return (
     <KeyboardAvoidingView
